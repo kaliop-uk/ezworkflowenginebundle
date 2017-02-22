@@ -1,0 +1,40 @@
+{
+    "name": "kaliop/ezworkflowenginebundle",
+    "type": "symfony-bundle",
+    "description": "Kaliop eZ-Workflow-Engine Bundle",
+    "keywords": ["workflow", "ezpublish"],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Gaetano Giunta",
+            "email": "ggiunta@kaliop.com",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Daniel Clements",
+            "email": "dclements@kaliop.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "kaliop/ezmigrationbundle": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "codeclimate/php-test-reporter": "~0.4"
+    },
+    "autoload": {
+        "psr-4": { "Kaliop\\eZWorkflowEngineBundle\\": "" }
+    },
+    "_comment::travis": "the following section is needed to insure that eZPublish 5 can be built on travis, using the custom directory structure where it is not in the root folder",
+    "extra": {
+        "ezpublish-legacy-dir": "vendor/ezsystems/ezpublish-legacy"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/gggeek/BehatBundle"
+        }
+    ]
+}
