@@ -11,7 +11,6 @@ class JsonDefinitionParser extends AbstractDefinitionParser implements Definitio
     public function supports($migrationName)
     {
         $ext = pathinfo($migrationName, PATHINFO_EXTENSION);
-var_dump($ext);
         return  $ext == 'json';
     }
 

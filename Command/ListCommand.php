@@ -38,13 +38,21 @@ class ListCommand extends AbstractCommand
 
         $i = 1;
         foreach ($workflowDefinitions as $workflowDefinition) {
+            switch ($workflowDefinition->status) {
+                case MigrationDefinition::STATUS_INVALID:
+                    $name = '<error>' . $workflowDefinition->name . '</error>';
+                    break;
+                default:
+                    $name = $workflowDefinition->name;
+            }
             $data[] = array(
                 $i++,
                 $workflowDefinition->slotName,
-                $workflowDefinition->name,
+                $name,
                 //$workflowDefinition->path,
                 $workflowDefinition->parsingError
             );
+
         }
 
         $table = $this->getHelperSet()->get('table');

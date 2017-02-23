@@ -17,9 +17,11 @@ class AbstractDefinitionParser extends BaseParser
         $steps = $migrationDefinition->steps->getArrayCopy();
         $error = $migrationDefinition->parsingError;
 
+        $slotName = '';
+
         if ($status == MigrationDefinition::STATUS_PARSED) {
 
-            do { //
+            do { // goto is evil ;-)
                 if (count($steps) < 1) {
                     $status = MigrationDefinition::STATUS_INVALID;
                     $error = "$format file '{$definition->path}' is not a valid workflow definition as it has no workflow manifest";
