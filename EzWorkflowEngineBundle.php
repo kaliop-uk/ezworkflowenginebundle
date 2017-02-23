@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZWorkflowEngineBundle;
 
-use Kaliop\eZMigrationBundle\DependencyInjection\CompilerPass\TaggedServicesCompilerPass;
+use Kaliop\eZWorkflowEngineBundle\DependencyInjection\CompilerPass\TaggedServicesCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

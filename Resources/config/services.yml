@@ -1,3 +1,83 @@
 parameters:
+    ez_workflowengine_bundle.table_name: 'kaliop_workflows'
+    ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
+
+    ez_workflowengine_bundle.workflow_service.facade.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
+    ez_workflowengine_bundle.workflow_service.inner.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceInner
+
+    ez_workflowengine_bundle.loader.filesystem.class: Kaliop\eZWorkflowEngineBundle\Core\Loader\Filesystem
+
+    ez_workflowengine_bundle.definition_parser.yaml.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\YamlDefinitionParser
+    ez_workflowengine_bundle.definition_parser.json.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\JsonDefinitionParser
+
+    ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZMigrationBundle\Core\StorageHandler\Database
+
+    ez_workflowengine_bundle.slot.workflow.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
 
 services:
+
+    ez_workflowengine_bundle.workflow_service:
+        alias: ez_workflowengine_bundle.workflow_service.facade
+
+    ez_workflowengine_bundle.workflow_service.facade:
+        class: '%ez_workflowengine_bundle.workflow_service.facade.class%'
+        arguments:
+            - '@ez_workflowengine_bundle.workflow_service.inner'
+
+    ez_workflowengine_bundle.workflow_service.inner:
+        class: '%ez_workflowengine_bundle.workflow_service.inner.class%'
+        arguments:
+            - '@ez_workflowengine_bundle.loader'
+            - '@ez_workflowengine_bundle.storage_handler'
+            - '@ezpublish.api.repository'
+            - '@event_dispatcher'
+
+    ### loaders
+
+    ez_workflowengine_bundle.loader:
+        alias: ez_workflowengine_bundle.loader.filesystem
+
+    ez_workflowengine_bundle.loader.filesystem:
+        class: '%ez_workflowengine_bundle.loader.filesystem.class%'
+        arguments:
+            - '@kernel'
+            - '%ez_workflowengine_bundle.workflow_directory%'
+
+    ### parsers
+
+    ez_workflowengine_bundle.definition_parser.yaml:
+        class: '%ez_workflowengine_bundle.definition_parser.yaml.class%'
+        arguments: []
+        tags:
+            - { name: ez_workflowengine_bundle.definition_parser }
+
+    ez_workflowengine_bundle.definition_parser.json:
+        class: '%ez_workflowengine_bundle.definition_parser.json.class%'
+        arguments: []
+        tags:
+            - { name: ez_workflowengine_bundle.definition_parser }
+
+    ### storage handlers
+
+    ez_workflowengine_bundle.storage_handler:
+        alias: ez_migration_bundle.storage_handler.database
+
+    ez_workflowengine_bundle.storage_handler.database:
+        class: '%ez_migration_bundle.storage_handler.database.class%'
+        arguments:
+            - '@ezpublish.connection'
+            - '%ez_workflowengine_bundle.table_name%'
+
+    ### slots
+
+    ez_workflowengine_bundle.slot.workflow:
+        class: %ez_workflowengine_bundle.slot.workflow.class%
+        #arguments: [@ezpublish.api.service.content]
+        tags:
+            # @todo register for all possible slots
+            - { name: ezpublish.api.slot, signal: ContentService\CreateContentSignal }
+            - { name: ezpublish.api.slot, signal: ContentService\DeleteContentSignal }
+            - { name: ezpublish.api.slot, signal: ContentService\PublishVersionSignal }
+            - { name: ezpublish.api.slot, signal: LocationService\CreateLocationSignal }
+            - { name: ezpublish.api.slot, signal: LocationService\HideLocationSignal }
+            - { name: ezpublish.api.slot, signal: LocationService\UnHideLocationSignal }
