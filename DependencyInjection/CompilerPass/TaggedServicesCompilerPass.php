@@ -1,6 +1,6 @@
 <?php
 
-namespace Kaliop\eZMigrationBundle\DependencyInjection\CompilerPass;
+namespace Kaliop\eZWorkflowEngineBundle\DependencyInjection\CompilerPass;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
