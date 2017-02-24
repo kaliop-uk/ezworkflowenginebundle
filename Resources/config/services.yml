@@ -10,7 +10,7 @@ parameters:
     ez_workflowengine_bundle.definition_parser.yaml.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\YamlDefinitionParser
     ez_workflowengine_bundle.definition_parser.json.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\JsonDefinitionParser
 
-    ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZMigrationBundle\Core\StorageHandler\Database
+    ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database
 
     ez_workflowengine_bundle.slot.workflow.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
 
@@ -60,10 +60,10 @@ services:
     ### storage handlers
 
     ez_workflowengine_bundle.storage_handler:
-        alias: ez_migration_bundle.storage_handler.database
+        alias: ez_workflowengine_bundle.storage_handler.database
 
     ez_workflowengine_bundle.storage_handler.database:
-        class: '%ez_migration_bundle.storage_handler.database.class%'
+        class: '%ez_workflowengine_bundle.storage_handler.database.class%'
         arguments:
             - '@ezpublish.connection'
             - '%ez_workflowengine_bundle.table_name%'
@@ -72,7 +72,9 @@ services:
 
     ez_workflowengine_bundle.slot.workflow:
         class: %ez_workflowengine_bundle.slot.workflow.class%
-        #arguments: [@ezpublish.api.service.content]
+        arguments:
+            - '@ez_workflowengine_bundle.workflow_service'
+            - '@ez_migration_bundle.reference_resolver.customreference'
         tags:
             # @todo register for all possible slots
             - { name: ezpublish.api.slot, signal: ContentService\CreateContentSignal }

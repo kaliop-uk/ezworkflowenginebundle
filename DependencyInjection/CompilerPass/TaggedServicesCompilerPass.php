@@ -22,6 +22,14 @@ class TaggedServicesCompilerPass implements CompilerPassInterface
                     new Reference($id)
                 ));
             }
+
+            // avoid re-tagging manually all executors
+            $executors = $container->findTaggedServiceIds('ez_migration_bundle.executor');
+            foreach ($executors as $id => $tags) {
+                $migrationService->addMethodCall('addExecutor', array(
+                    new Reference($id)
+                ));
+            }
         }
     }
 }

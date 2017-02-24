@@ -38,18 +38,19 @@ class WorkflowServiceFacade
     }
 
     /**
+     * Returns VALID definitions for a given slot
      * @param $slotName
      * @param string[] $paths
      * @return MigrationDefinitionCollection
      * @todo add caching as this is quite inefficient
      */
-    public function getWorkflowsDefinitionsForSlot($slotName, $paths = array())
+    public function getValidWorkflowsDefinitionsForSlot($slotName, $paths = array())
     {
         $defs = array();
 
         foreach($this->getWorkflowsDefinitions($paths) as $key => $definition) {
             /// @todo add safety check that we got back in fact a WorkflowDefinition
-            if ($definition->slotName === $slotName) {
+            if ($definition->slotName === $slotName && $definition->status == MigrationDefinition::STATUS_PARSED) {
                 $defs[$key] = $definition;
             }
         }
@@ -59,7 +60,7 @@ class WorkflowServiceFacade
 
     public function __call($name, array $arguments)
     {
-        $name = str_replace('Migration', 'Workflow', $name);
+        $name = str_replace('Workflow', 'Migration', $name);
         return call_user_func_array(array($this->innerService, $name), $arguments);
     }
 }
