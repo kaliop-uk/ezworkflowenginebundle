@@ -15,7 +15,7 @@ class JsonDefinitionParser extends AbstractDefinitionParser implements Definitio
     }
 
     /**
-     * Parses a migration definition file, and returns the list of actions to take
+     * Parses a workflow definition file, and returns the list of actions to take
      *
      * @param MigrationDefinition $definition
      * @return WorkflowDefinition

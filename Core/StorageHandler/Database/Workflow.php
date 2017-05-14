@@ -1,25 +1,25 @@
 <?php
 
-namespace Kaliop\eZWorkflowEngineBundle\Core\StorageHandler;
+namespace Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database;
 
-use Kaliop\eZMigrationBundle\Core\StorageHandler\Database as BaseStorageHandler;
+use Kaliop\eZMigrationBundle\Core\StorageHandler\Database\Migration as StorageMigration;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use Kaliop\eZWorkflowEngineBundle\API\Value\Workflow;
+use Kaliop\eZWorkflowEngineBundle\API\Value\Workflow as APIWorkflow;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Schema;
 
-class Database extends BaseStorageHandler
+class Workflow extends StorageMigration
 {
     protected $fieldList = 'migration, md5, path, execution_date, status, execution_error, slot_name';
 
     public function addMigration(MigrationDefinition $migrationDefinition)
     {
-        $this->createMigrationsTableIfNeeded();
+        $this->createTableIfNeeded();
 
         $conn = $this->dbHandler->getConnection();
 
-        $migration = new Workflow(
+        $migration = new APIWorkflow(
             $migrationDefinition->name,
             md5($migrationDefinition->rawDefinition),
             $migrationDefinition->path,
@@ -28,7 +28,7 @@ class Database extends BaseStorageHandler
             $migrationDefinition->slotName
         );
         try {
-            $conn->insert($this->migrationsTableName, $this->migrationToArray($migration));
+            $conn->insert($this->tableName, $this->migrationToArray($migration));
         } catch (UniqueConstraintViolationException $e) {
             throw new \Exception("Migration '{$migrationDefinition->name}' already exists");
         }
@@ -38,7 +38,7 @@ class Database extends BaseStorageHandler
 
     protected function createMigration(MigrationDefinition $migrationDefinition, $status, $action)
     {
-        $this->createMigrationsTableIfNeeded();
+        $this->createTableIfNeeded();
 
         // select for update
 
@@ -48,7 +48,7 @@ class Database extends BaseStorageHandler
 
         $qb = $conn->createQueryBuilder();
         $qb->select('*')
-            ->from($this->migrationsTableName, 'm')
+            ->from($this->tableName, 'm')
             ->where('migration = ?');
         $sql = $qb->getSQL() . ' FOR UPDATE';
 
@@ -86,7 +86,7 @@ class Database extends BaseStorageHandler
                 $status
             );
             $conn->update(
-                $this->migrationsTableName,
+                $this->tableName,
                 array(
                     'execution_date' => $migration->executionDate,
                     'status' => $status,
@@ -102,7 +102,7 @@ class Database extends BaseStorageHandler
             // commit immediately, to release the lock and avoid deadlocks
             $conn->commit();
 
-            $migration = new Workflow(
+            $migration = new APIWorkflow(
                 $migrationDefinition->name,
                 md5($migrationDefinition->rawDefinition),
                 $migrationDefinition->path,
@@ -110,7 +110,7 @@ class Database extends BaseStorageHandler
                 $status,
                 $migrationDefinition->slotName
             );
-            $conn->insert($this->migrationsTableName, $this->migrationToArray($migration));
+            $conn->insert($this->tableName, $this->migrationToArray($migration));
         }
 
         return $migration;
@@ -124,7 +124,7 @@ class Database extends BaseStorageHandler
 
         $schema = new Schema();
 
-        $t = $schema->createTable($this->migrationsTableName);
+        $t = $schema->createTable($this->tableName);
         $t->addColumn('migration', 'string', array('length' => 255));
         $t->addColumn('path', 'string', array('length' => 4000));
         $t->addColumn('md5', 'string', array('length' => 32));
@@ -158,7 +158,7 @@ class Database extends BaseStorageHandler
 
     protected function arrayToMigration(array $data)
     {
-        return new Workflow(
+        return new APIWorkflow(
             $data['migration'],
             $data['md5'],
             $data['path'],

@@ -17,12 +17,9 @@ class ListCommand extends AbstractCommand
     {
         $this->setName('kaliop:workflows:debug')
             ->setDescription('List the configured workflow definitions')
-            ->addOption(
-                'path',
-                null,
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                "The directory or file to load the workflow definitions from"
-            );
+            ->addOption('path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "The directory or file to load the workflow definitions from"
+            )
+        ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output)

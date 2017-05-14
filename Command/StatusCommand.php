@@ -10,6 +10,8 @@ use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
  * Command to display the defined workflows.
+ *
+ * @todo add a 'summary' option
  */
 class StatusCommand extends AbstractCommand
 {

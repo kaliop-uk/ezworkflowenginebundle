@@ -5,6 +5,7 @@ namespace Kaliop\eZWorkflowEngineBundle\Core;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
+
 /**
  * @todo add phpdoc to help IDEs
  */
