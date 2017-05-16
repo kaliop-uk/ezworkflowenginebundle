@@ -27,11 +27,102 @@ class WorkflowTrigger extends Slot
 
         if (count($workflowDefinitions)) {
             switch($slotName) {
-                case 'LocationService\HideLocationSignal':
-                    $this->referenceResolver->addReference('slot:location_id', $signal->locationId, true);
+                case 'ContentService\AddRelationSignal':
+                case 'ContentService\DeleteRelationSignal':
+                    $this->referenceResolver->addReference('slot:src_content_id', $signal->srcContentId, true);
+                    $this->referenceResolver->addReference('slot:src_version_no', $signal->srcVersionNo, true);
+                    $this->referenceResolver->addReference('slot:dst_content_id', $signal->dstContentId, true);
+                    break;
+                case 'ContentService\CreateContentSignal':
+                case 'ContentService\DeleteVersionSignal':
+                case 'ContentService\PublishVersionSignal':
+                case 'ContentService\UpdateContentSignal':
+                case 'ContentService\UpdateContentMetadataSignal':
                     $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:version_no', $signal->versionNo, true);
+                    break;
+                case 'ContentService\CopyContentSignal':
+                    $this->referenceResolver->addReference('slot:src_content_id', $signal->srcContentId, true);
+                    $this->referenceResolver->addReference('slot:src_version_no', $signal->srcVersionNo, true);
+                    $this->referenceResolver->addReference('slot:dst_content_id', $signal->dstContentId, true);
+                    $this->referenceResolver->addReference('slot:dst_version_no', $signal->dstVersionNo, true);
+                    $this->referenceResolver->addReference('slot:dst_parent_location_id', $signal->dstParentLocationId , true);
+                    break;
+                case 'ContentService\CreateContentDraftSignal':
+                case 'ContentService\TranslateVersionSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:version_no', $signal->versionNo, true);
+                    $this->referenceResolver->addReference('slot:user_id', $signal->$userId, true);
+                    break;
+                case 'ContentService\DeleteContentSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    break;
+
+                case 'LocationService\CopySubtreeSignal':
+                    $this->referenceResolver->addReference('slot:subtree_id', $signal->subtreeId, true);
+                    $this->referenceResolver->addReference('slot:target_parent_location_id', $signal->targetParentLocationId, true);
+                    break;
+                case 'LocationService\CreateLocationSignal':
+                case 'LocationService\DeleteLocationSignal':
+                case 'LocationService\UpdateLocationSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:location_id', $signal->locationId, true);
+                    break;
+                case 'LocationService\HideLocationSignal':
+                case 'LocationService\UnhideLocationSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:location_id', $signal->locationId, true);
                     $this->referenceResolver->addReference('slot:current_version', $signal->currentVersionNo, true);
-                default;
+                    break;
+                case 'LocationService\MoveSubtreeSignal':
+                    $this->referenceResolver->addReference('slot:subtree_id', $signal->subtreeId, true);
+                    $this->referenceResolver->addReference('slot:new_parent_location_id', $signal->newParentLocationId, true);
+                    break;
+                case 'LocationService\SwapLocationSignal':
+                    $this->referenceResolver->addReference('slot:content1_id', $signal->content1Id, true);
+                    $this->referenceResolver->addReference('slot:location1_id', $signal->location1Id, true);
+                    $this->referenceResolver->addReference('slot:content2_id', $signal->content2Id, true);
+                    $this->referenceResolver->addReference('slot:location2_id', $signal->location2Id, true);
+                    break;
+
+                case 'ObjectStateService\SetContentStateSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:object_state_group_id', $signal->objectStateGroupId, true);
+                    $this->referenceResolver->addReference('slot:object_state_id', $signal->objectStateId, true);
+                    break;
+
+                case 'SectionService\AssignSectionSignal':
+                    $this->referenceResolver->addReference('slot:content_id', $signal->contentId, true);
+                    $this->referenceResolver->addReference('slot:section_id', $signal->sectionId, true);
+                    break;
+                case 'SectionService\CreateSectionSignal':
+                case 'SectionService\DeleteSectionSignal':
+                case 'SectionService\UpdateSectionSignal':
+                    $this->referenceResolver->addReference('slot:section_id', $signal->sectionId, true);
+                    break;
+
+                case 'UserService\AssignUserToUserGroupSignal':
+                case 'UserService\UnAssignUserFromUserGroupSignal':
+                    $this->referenceResolver->addReference('slot:user_id', $signal->userId, true);
+                    $this->referenceResolver->addReference('slot:user_group_id', $signal->userGroupId, true);
+                    break;
+                case 'UserService\CreateUserGroupSignal':
+                case 'UserService\DeleteUserGroupSignal':
+                case 'UserService\UpdateUserGroupSignal':
+                    $this->referenceResolver->addReference('slot:user_group_id', $signal->userGroupId, true);
+                    break;
+                case 'UserService\CreateUserSignal':
+                case 'UserService\DeleteUserSignal':
+                case 'UserService\UpdateUserSignal':
+                    $this->referenceResolver->addReference('slot:user_id', $signal->userId, true);
+                    break;
+                case 'UserService\MoveUserGroupSignal':
+                    $this->referenceResolver->addReference('slot:user_group_id', $signal->userGroupId, true);
+                    $this->referenceResolver->addReference('slot:new_parent_id', $signal->newParentId, true);
+                    break;
+
+                default:
+                    throw new \Exception("Unsupported slot '$slotName'");
             }
 
             /** @var WorkflowDefinition $workflowDefinition */
