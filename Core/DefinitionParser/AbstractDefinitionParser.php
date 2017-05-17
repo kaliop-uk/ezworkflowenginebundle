@@ -18,6 +18,8 @@ class AbstractDefinitionParser extends BaseParser
         $error = $migrationDefinition->parsingError;
 
         $slotName = '';
+        // false stands for 'use current user'
+        $user = false;
 
         if ($status == MigrationDefinition::STATUS_PARSED) {
 
@@ -44,8 +46,12 @@ class AbstractDefinitionParser extends BaseParser
                     $error = "$format file '{$definition->path}' is not a valid workflow definition as its 1st step does not define a slot";
                     break;
                 }
-
                 $slotName = $dsl[WorkflowDefinition::MANIFEST_SLOT_ELEMENT];
+
+                if (isset($dsl[WorkflowDefinition::MANIFEST_RUNAS_ELEMENT])) {
+                    $user = $dsl[WorkflowDefinition::MANIFEST_RUNAS_ELEMENT];
+                }
+
             } while(false);
         }
 
@@ -56,7 +62,8 @@ class AbstractDefinitionParser extends BaseParser
             $status,
             $steps,
             $error,
-            $slotName
+            $slotName,
+            $user
         );
     }
 }

@@ -121,8 +121,9 @@ class WorkflowTrigger extends Slot
                     $this->referenceResolver->addReference('slot:new_parent_id', $signal->newParentId, true);
                     break;
 
-                default:
-                    throw new \Exception("Unsupported slot '$slotName'");
+                // since we listen to all eZP signals, this exception too is dangerous
+                //default:
+                //    throw new \Exception("Unsupported slot '$slotName'");
             }
 
             /** @var WorkflowDefinition $workflowDefinition */
@@ -134,10 +135,12 @@ class WorkflowTrigger extends Slot
                     $workflowDefinition->status,
                     $workflowDefinition->steps->getArrayCopy(),
                     null,
-                    $slotName
+                    $slotName,
+                    $workflowDefinition->runAs
                 );
 
-                $this->workflowService->executeWorkflow($wfd);
+                /// @todo allow setting of userTransaction, default lang ?
+                $this->workflowService->executeWorkflow($wfd, true, null, $workflowDefinition->runAs);
             }
         }
     }

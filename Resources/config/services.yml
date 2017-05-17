@@ -77,41 +77,49 @@ services:
             - '@ez_workflowengine_bundle.workflow_service'
             - '@ez_migration_bundle.reference_resolver.customreference'
         tags:
-            # @todo register for all possible slots
-            - { name: ezpublish.api.slot, signal: ContentService\AddRelationSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\CopyContentSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\CreateContentDraftSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\CreateContentSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\DeleteContentSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\DeleteRelationSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\DeleteVersionSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\PublishVersionSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\TranslateVersionSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\UpdateContentMetadataSignal }
-            - { name: ezpublish.api.slot, signal: ContentService\UpdateContentSignal }
+            - { name: ezpublish.api.slot, signal: '*' }
 
-            - { name: ezpublish.api.slot, signal: LocationService\CopySubtreeSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\CreateLocationSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\DeleteLocationSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\HideLocationSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\UnhideLocationSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\MoveSubtreeSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\SwapLocationSignal }
-            - { name: ezpublish.api.slot, signal: LocationService\UpdateLocationSignal }
+    ez_workflowengine_bundle.slot.workflow2:
+            class: %ez_workflowengine_bundle.slot.workflow.class%
+            arguments:
+                - '@ez_workflowengine_bundle.workflow_service'
+                - '@ez_migration_bundle.reference_resolver.customreference'
+            tags:
+                # @todo register for all possible slots
+                - { name: ezpublish.api.slot, signal: ContentService\AddRelationSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\CopyContentSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\CreateContentDraftSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\CreateContentSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\DeleteContentSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\DeleteRelationSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\DeleteVersionSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\PublishVersionSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\TranslateVersionSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\UpdateContentMetadataSignal }
+                - { name: ezpublish.api.slot, signal: ContentService\UpdateContentSignal }
 
-            - { name: ezpublish.api.slot, signal: ObjectStateService\SetContentStateSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\CopySubtreeSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\CreateLocationSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\DeleteLocationSignal }
+                #- { name: ezpublish.api.slot, signal: LocationService\HideLocationSignal }
+                #- { name: ezpublish.api.slot, signal: LocationService\UnhideLocationSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\MoveSubtreeSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\SwapLocationSignal }
+                - { name: ezpublish.api.slot, signal: LocationService\UpdateLocationSignal }
 
-            - { name: ezpublish.api.slot, signal: SectionService\AssignSectionSignal }
-            - { name: ezpublish.api.slot, signal: SectionService\CreateSectionSignal }
-            - { name: ezpublish.api.slot, signal: SectionService\DeleteSectionSignal }
-            - { name: ezpublish.api.slot, signal: SectionService\UpdateSectionSignal }
+                - { name: ezpublish.api.slot, signal: ObjectStateService\SetContentStateSignal }
 
-            - { name: ezpublish.api.slot, signal: UserService\AssignUserToUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\CreateUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\CreateUserSignal }
-            - { name: ezpublish.api.slot, signal: UserService\DeleteUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\DeleteUserSignal }
-            - { name: ezpublish.api.slot, signal: UserService\MoveUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\UnAssignUserFromUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\UpdateUserGroupSignal }
-            - { name: ezpublish.api.slot, signal: UserService\UpdateUserSignal }
+                - { name: ezpublish.api.slot, signal: SectionService\AssignSectionSignal }
+                - { name: ezpublish.api.slot, signal: SectionService\CreateSectionSignal }
+                - { name: ezpublish.api.slot, signal: SectionService\DeleteSectionSignal }
+                - { name: ezpublish.api.slot, signal: SectionService\UpdateSectionSignal }
+
+                - { name: ezpublish.api.slot, signal: UserService\AssignUserToUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\CreateUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\CreateUserSignal }
+                - { name: ezpublish.api.slot, signal: UserService\DeleteUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\DeleteUserSignal }
+                - { name: ezpublish.api.slot, signal: UserService\MoveUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\UnAssignUserFromUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\UpdateUserGroupSignal }
+                - { name: ezpublish.api.slot, signal: UserService\UpdateUserSignal }
