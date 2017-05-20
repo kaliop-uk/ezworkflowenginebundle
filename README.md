@@ -8,7 +8,8 @@ Example workflow definition:
     -
         type: workflow
         slot: LocationService\HideLocationSignal
-    
+        run_as: admin
+
     -
         type: content
         mode: update
