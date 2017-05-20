@@ -25,9 +25,9 @@ class StatusCommand extends AbstractCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $workflowsService = $this->getWorkflowService();
+        $workflowService = $this->getWorkflowService();
 
-        $workflows = $workflowsService->getWorkflows();
+        $workflows = $workflowService->getWorkflows();
 
         if (!count($workflows)) {
             $output->writeln('<info>No workflows found</info>');
@@ -64,8 +64,8 @@ class StatusCommand extends AbstractCommand
             }
             $data[] = array(
                 $i++,
-                $workflow->signalName,
                 $name,
+                $workflow->signalName,
                 $workflow->executionDate != null ? date("Y-m-d H:i:s", $workflow->executionDate) : '',
                 $workflow->executionError,
             );
@@ -79,7 +79,7 @@ class StatusCommand extends AbstractCommand
             $data = $summary;
             $headers = array('Status', 'Count');
         } else {
-            $headers = array('#', 'Signal', 'Workflow', 'Executed on', 'Notes');
+            $headers = array('#', 'Workflow', 'Signal', 'Executed on', 'Notes');
         }
         $table = $this->getHelperSet()->get('table');
         $table

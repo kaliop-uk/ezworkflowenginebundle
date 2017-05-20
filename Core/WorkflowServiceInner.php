@@ -20,6 +20,9 @@ class WorkflowServiceInner extends MigrationService
 
     /**
      * Reimplemented to make sure we always return a WorkflowDefinition
+     * @param MigrationDefinition $migrationDefinition this should be a WorkflowDefinition really
+     * @return WorkflowDefinition
+     * @throws \Exception
      */
     public function parseMigrationDefinition(MigrationDefinition $migrationDefinition)
     {
@@ -37,8 +40,10 @@ class WorkflowServiceInner extends MigrationService
                             $migrationDefinition->rawDefinition,
                             MigrationDefinition::STATUS_INVALID,
                             array(),
-                            "Can not handle migration step of type '{$step->type}'",
-                            $migrationDefinition->signalName
+                            "Can not handle workflow step of type '{$step->type}'",
+                            isset($migrationDefinition->signalName) ? $migrationDefinition->signalName : null,
+                            isset($migrationDefinition->runAs) ? $migrationDefinition->runAs : false,
+                            isset($migrationDefinition->useTransaction) ? $migrationDefinition->useTransaction : false
                         );
                     }
                 }

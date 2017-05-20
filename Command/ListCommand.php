@@ -9,7 +9,7 @@ use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
- * Command to display the defined workflows.
+ * Command to display the defined workflow definitions.
  */
 class ListCommand extends AbstractCommand
 {
@@ -24,9 +24,9 @@ class ListCommand extends AbstractCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $workflowsService = $this->getWorkflowService();
+        $workflowService = $this->getWorkflowService();
 
-        $workflowDefinitions = $workflowsService->getWorkflowsDefinitions($input->getOption('path'));
+        $workflowDefinitions = $workflowService->getWorkflowsDefinitions($input->getOption('path'));
 
         if (!count($workflowDefinitions)) {
             $output->writeln('<info>No workflow definitions found</info>');
@@ -44,9 +44,11 @@ class ListCommand extends AbstractCommand
             }
             $data[] = array(
                 $i++,
-                $workflowDefinition->signalName,
                 $name,
+                $workflowDefinition->signalName,
                 //$workflowDefinition->path,
+                ($workflowDefinition->runAs === false) ? '-' : $workflowDefinition->runAs,
+                $workflowDefinition->useTransaction ? 'Y' : 'N',
                 $workflowDefinition->parsingError
             );
 
@@ -54,7 +56,7 @@ class ListCommand extends AbstractCommand
 
         $table = $this->getHelperSet()->get('table');
         $table
-            ->setHeaders(array('#', 'Signal', 'Workflow', /*'Path',*/ 'Notes'))
+            ->setHeaders(array('#', 'Workflow definition', 'Signal', 'Switch user', 'Use transaction', /*'Path',*/ 'Notes'))
             ->setRows($data);
         $table->render($output);
     }

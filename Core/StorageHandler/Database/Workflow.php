@@ -9,36 +9,28 @@ use Kaliop\eZWorkflowEngineBundle\API\Value\Workflow as APIWorkflow;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Schema;
 
+/**
+ * @todo add methods aliases using 'Workflow' in place of 'Migration'
+ */
 class Workflow extends StorageMigration
 {
     protected $fieldList = 'migration, md5, path, execution_date, status, execution_error, signal_name';
 
+    /**
+     * @param MigrationDefinition $migrationDefinition
+     * @return APIWorkflow
+     * @throws \Exception
+     */
     public function addMigration(MigrationDefinition $migrationDefinition)
     {
-        $this->createTableIfNeeded();
-
-        $conn = $this->dbHandler->getConnection();
-
-        $migration = new APIWorkflow(
-            $migrationDefinition->name,
-            md5($migrationDefinition->rawDefinition),
-            $migrationDefinition->path,
-            null,
-            Migration::STATUS_TODO,
-            $migrationDefinition->signalName
-        );
-        try {
-            $conn->insert($this->tableName, $this->migrationToArray($migration));
-        } catch (UniqueConstraintViolationException $e) {
-            throw new \Exception("Migration '{$migrationDefinition->name}' already exists");
-        }
-
-        return $migration;
+        throw new \Exception("Can not add workflows to the database if not when starting them");
     }
 
     protected function createMigration(MigrationDefinition $migrationDefinition, $status, $action)
     {
         $this->createTableIfNeeded();
+
+        $workflowName = $this->getWorkflowName($migrationDefinition->name);
 
         // select for update
 
@@ -54,36 +46,40 @@ class Workflow extends StorageMigration
 
         $conn->beginTransaction();
 
-        $stmt = $conn->executeQuery($sql, array($migrationDefinition->name));
+        $stmt = $conn->executeQuery($sql, array($workflowName));
         $existingMigrationData = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (is_array($existingMigrationData)) {
-            // migration exists
+            // workflow exists - start it
+
+            $workflowName = $existingMigrationData['name'];
 
             // fail if it was already executing or already done
             if ($existingMigrationData['status'] == Migration::STATUS_STARTED) {
                 // commit to release the lock
                 $conn->commit();
-                throw new \Exception("Migration '{$migrationDefinition->name}' can not be $action as it is already executing");
+                throw new \Exception("Workflow '{$migrationDefinition->name}' can not be $action as it is already executing");
             }
             if ($existingMigrationData['status'] == Migration::STATUS_DONE) {
                 // commit to release the lock
                 $conn->commit();
-                throw new \Exception("Migration '{$migrationDefinition->name}' can not be $action as it was already executed");
+                throw new \Exception("Workflow '{$migrationDefinition->name}' can not be $action as it was already executed");
             }
             if ($existingMigrationData['status'] == Migration::STATUS_SKIPPED) {
                 // commit to release the lock
                 $conn->commit();
-                throw new \Exception("Migration '{$migrationDefinition->name}' can not be $action as it was already skipped");
+                throw new \Exception("Workflow '{$migrationDefinition->name}' can not be $action as it was already skipped");
             }
 
             // do not set migration start date if we are skipping it
-            $migration = new Migration(
-                $migrationDefinition->name,
+            $migration = new APIWorkflow(
+                $workflowName,
                 md5($migrationDefinition->rawDefinition),
                 $migrationDefinition->path,
                 ($status == Migration::STATUS_SKIPPED ? null : time()),
-                $status
+                $status,
+                null,
+                $migrationDefinition->signalName
             );
             $conn->update(
                 $this->tableName,
@@ -92,7 +88,7 @@ class Workflow extends StorageMigration
                     'status' => $status,
                     'execution_error' => null
                 ),
-                array('migration' => $migrationDefinition->name)
+                array('migration' => $workflowName)
             );
             $conn->commit();
 
@@ -103,11 +99,12 @@ class Workflow extends StorageMigration
             $conn->commit();
 
             $migration = new APIWorkflow(
-                $migrationDefinition->name,
+                $workflowName,
                 md5($migrationDefinition->rawDefinition),
                 $migrationDefinition->path,
                 ($status == Migration::STATUS_SKIPPED ? null : time()),
                 $status,
+                null,
                 $migrationDefinition->signalName
             );
             $conn->insert($this->tableName, $this->migrationToArray($migration));
@@ -116,7 +113,12 @@ class Workflow extends StorageMigration
         return $migration;
     }
 
-    public function createMigrationsTable()
+    public function skipMigration(MigrationDefinition $migrationDefinition)
+    {
+        throw new \Exception("Can not tag workflows in the database as to be skipped");
+    }
+
+    public function createTable()
     {
         /** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
         $sm = $this->dbHandler->getConnection()->getSchemaManager();
@@ -167,5 +169,18 @@ class Workflow extends StorageMigration
             $data['execution_error'],
             $data['signal_name']
         );
+    }
+
+    /**
+     * @param string $workflowDefinitionName
+     * @return string currently YYYYMMDDHHmmSSuuu_PID/$workflowDefinitionName
+     * @todo for strict sorting across leap hours we should use unix timestamp
+     * @bug if we have a cluster of servers, we migth hit a pid collision...
+     */
+    protected function getWorkflowName($workflowDefinitionName)
+    {
+        $mtime = explode(' ', microtime());
+        $time = date('YmdHis', $mtime[1]). substr($mtime[0], 2, 3);
+        return $time . '/' . getmypid() . '/' . $workflowDefinitionName;
     }
 }

@@ -29,11 +29,11 @@ class CleanupCommand extends AbstractCommand
         $offset = 0;
         $limit = 1000;
 
-        $workflowsService = $this->getWorkflowService();
+        $workflowService = $this->getWorkflowService();
         $toRemove = array();
         $total = 0;
         do {
-            $workflows = $workflowsService->getMigrationsByStatus(Migration::STATUS_DONE, $limit, $offset);
+            $workflows = $workflowService->getMigrationsByStatus(Migration::STATUS_DONE, $limit, $offset);
 
             if (!count($workflows)) {
                 break;
@@ -50,7 +50,7 @@ class CleanupCommand extends AbstractCommand
         } while(true);
 
         foreach ($toRemove as $workflow) {
-            $workflowsService->deleteMigration($workflow);
+            $workflowService->deleteMigration($workflow);
         }
 
         $output->writeln("Removed " . count($toRemove) . " workflows out of $total executed");

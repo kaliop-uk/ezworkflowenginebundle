@@ -11,7 +11,7 @@ use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
  */
 class WorkflowDefinition extends MigrationDefinition
 {
-    const NAME_PREFIX = 'workflow://';
+    //const NAME_PREFIX = 'workflow://';
     const MANIFEST_STEP_TYPE= 'workflow';
     const MANIFEST_SIGNAL_ELEMENT= 'signal';
     const MANIFEST_RUNAS_ELEMENT= 'run_as';
@@ -37,9 +37,9 @@ class WorkflowDefinition extends MigrationDefinition
     public function __construct($name, $path, $rawDefinition, $status = 0, array $steps = array(), $parsingError = null,
         $signalName = null, $runAs = false, $useTransaction = false)
     {
-        if (strpos($name, self::NAME_PREFIX) !== 0) {
+        /*if (strpos($name, self::NAME_PREFIX) !== 0) {
             $name = self::NAME_PREFIX . $name;
-        }
+        }*/
 
         if ($status == MigrationDefinition::STATUS_PARSED && $signalName == null) {
             throw new \Exception("Can not create a parsed Workflow definition without a corresponding signal");

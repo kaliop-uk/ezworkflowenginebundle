@@ -46,7 +46,7 @@ class WorkflowTrigger extends Slot
             /** @var WorkflowDefinition $workflowDefinition */
             foreach ($workflowDefinitions as $workflowDefinition) {
                 $wfd = new WorkflowDefinition(
-                    $workflowDefinition->name . '/' . time() . '_' . getmypid(),
+                    $workflowDefinition->name,
                     $workflowDefinition->path,
                     $workflowDefinition->rawDefinition,
                     $workflowDefinition->status,

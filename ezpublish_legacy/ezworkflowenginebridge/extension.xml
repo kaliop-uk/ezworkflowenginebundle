@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <software>
     <metadata>
-        <name>Kaliop Workflow Engine Extension</name>
+        <name>Kaliop eZ Workflow Engine Bridge</name>
         <version>0.1</version>
         <copyright>Copyright (C) 2017 Kaliop UK Ltd</copyright>
         <license>GNU General Public License v2.0</license>
