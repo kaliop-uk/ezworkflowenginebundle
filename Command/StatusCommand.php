@@ -64,7 +64,7 @@ class StatusCommand extends AbstractCommand
             }
             $data[] = array(
                 $i++,
-                $workflow->slotName,
+                $workflow->signalName,
                 $name,
                 $workflow->executionDate != null ? date("Y-m-d H:i:s", $workflow->executionDate) : '',
                 $workflow->executionError,
@@ -79,7 +79,7 @@ class StatusCommand extends AbstractCommand
             $data = $summary;
             $headers = array('Status', 'Count');
         } else {
-            $headers = array('#', 'Slot', 'Workflow', 'Executed on', 'Notes');
+            $headers = array('#', 'Signal', 'Workflow', 'Executed on', 'Notes');
         }
         $table = $this->getHelperSet()->get('table');
         $table

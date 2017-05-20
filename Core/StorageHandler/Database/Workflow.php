@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Workflow extends StorageMigration
 {
-    protected $fieldList = 'migration, md5, path, execution_date, status, execution_error, slot_name';
+    protected $fieldList = 'migration, md5, path, execution_date, status, execution_error, signal_name';
 
     public function addMigration(MigrationDefinition $migrationDefinition)
     {
@@ -25,7 +25,7 @@ class Workflow extends StorageMigration
             $migrationDefinition->path,
             null,
             Migration::STATUS_TODO,
-            $migrationDefinition->slotName
+            $migrationDefinition->signalName
         );
         try {
             $conn->insert($this->tableName, $this->migrationToArray($migration));
@@ -108,7 +108,7 @@ class Workflow extends StorageMigration
                 $migrationDefinition->path,
                 ($status == Migration::STATUS_SKIPPED ? null : time()),
                 $status,
-                $migrationDefinition->slotName
+                $migrationDefinition->signalName
             );
             $conn->insert($this->tableName, $this->migrationToArray($migration));
         }
@@ -131,7 +131,7 @@ class Workflow extends StorageMigration
         $t->addColumn('execution_date', 'integer', array('notnull' => false));
         $t->addColumn('status', 'integer', array('default ' => Migration::STATUS_TODO));
         $t->addColumn('execution_error', 'string', array('length' => 4000, 'notnull' => false));
-        $t->addColumn('slot_name', 'string', array('length' => 4000, 'notnull' => false));
+        $t->addColumn('signal_name', 'string', array('length' => 4000, 'notnull' => false));
         $t->setPrimaryKey(array('migration'));
         // in case users want to look up migrations by their full path
         // NB: disabled for the moment, as it causes problems on some versions of mysql which limit index length to 767 bytes,
@@ -152,7 +152,7 @@ class Workflow extends StorageMigration
             'execution_date' => $migration->executionDate,
             'status' => $migration->status,
             'execution_error' => $migration->executionError,
-            'slot_name' => $migration->slotName
+            'signal_name' => $migration->signalName
         );
     }
 
@@ -165,7 +165,7 @@ class Workflow extends StorageMigration
             $data['execution_date'],
             $data['status'],
             $data['execution_error'],
-            $data['slot_name']
+            $data['signal_name']
         );
     }
 }

@@ -1,7 +1,7 @@
 # Every workflow definition must start with a 'manifest' as 1st step, which follows the following schema:
 -
     type: workflow
-    slot: XXXService\YYYSignal # See the complete list at https://doc.ez.no/display/EZP/Signals+reference
+    signal: XXXService\YYYSignal # See the complete list at https://doc.ez.no/display/EZP/Signals+reference
     run_as: admin # Optional. If not set, workflows execute as the current user. If set, as the user specified here
 
 

@@ -12,7 +12,7 @@ parameters:
 
     ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database\Workflow
 
-    ez_workflowengine_bundle.slot.workflow.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
+    ez_workflowengine_bundle.slot.workflowtrigger.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
 
 services:
 
@@ -71,8 +71,8 @@ services:
 
     ### slots
 
-    ez_workflowengine_bundle.slot.workflow:
-        class: %ez_workflowengine_bundle.slot.workflow.class%
+    ez_workflowengine_bundle.slot.workflowtrigger:
+        class: %ez_workflowengine_bundle.slot.workflowtrigger.class%
         arguments:
             - '@ez_workflowengine_bundle.workflow_service'
             - '@ez_migration_bundle.reference_resolver.customreference'

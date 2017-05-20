@@ -38,7 +38,7 @@ class WorkflowServiceInner extends MigrationService
                             MigrationDefinition::STATUS_INVALID,
                             array(),
                             "Can not handle migration step of type '{$step->type}'",
-                            $migrationDefinition->slotName
+                            $migrationDefinition->signalName
                         );
                     }
                 }

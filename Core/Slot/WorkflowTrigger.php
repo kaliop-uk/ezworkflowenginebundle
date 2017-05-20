@@ -20,27 +20,27 @@ class WorkflowTrigger extends Slot
 
     public function receive(Signal $signal)
     {
-        return $this->triggerWorkflow($this->slotNameFromSignal($signal), (array)$signal);
+        return $this->triggerWorkflow($this->signalNameFromSignal($signal), (array)$signal);
     }
 
-    protected function slotNameFromSignal(Signal $signal)
+    protected function signalNameFromSignal(Signal $signal)
     {
         $className = get_class($signal);
         return str_replace('eZ\Publish\Core\SignalSlot\Signal\\', '', $className);
     }
 
     /**
-     * @param string $slotName must use the same format as we extract from signal class names
+     * @param string $signalName must use the same format as we extract from signal class names
      * @param array $parameters must follow what is found in eZ5 signals
      */
-    public function triggerWorkflow($slotName, array $parameters)
+    public function triggerWorkflow($signalName, array $parameters)
     {
-        $workflowDefinitions = $this->workflowService->getValidWorkflowsDefinitionsForSlot($slotName);
+        $workflowDefinitions = $this->workflowService->getValidWorkflowsDefinitionsForSignal($signalName);
 
         if (count($workflowDefinitions)) {
 
             foreach($parameters as $parameter => $value) {
-                $this->referenceResolver->addReference('slot:' . $this->convertSignalMember($slotName, $parameter), $value, true);
+                $this->referenceResolver->addReference('signal:' . $this->convertSignalMember($signalName, $parameter), $value, true);
             }
 
             /** @var WorkflowDefinition $workflowDefinition */
@@ -52,7 +52,7 @@ class WorkflowTrigger extends Slot
                     $workflowDefinition->status,
                     $workflowDefinition->steps->getArrayCopy(),
                     null,
-                    $slotName,
+                    $signalName,
                     $workflowDefinition->runAs
                 );
 
@@ -63,11 +63,11 @@ class WorkflowTrigger extends Slot
     }
 
     /**
-     * @param string $slotName
+     * @param string $signalName
      * @param string $parameter
      * @return string
      */
-    protected function convertSignalMember($slotName, $parameter)
+    protected function convertSignalMember($signalName, $parameter)
     {
         // CamelCase to snake_case using negative look-behind in regexp
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $parameter));

@@ -7,7 +7,7 @@ Example workflow definition:
 
     -
         type: workflow
-        slot: LocationService\HideLocationSignal
+        signal: LocationService\HideLocationSignal
         run_as: admin
 
     -
@@ -15,6 +15,6 @@ Example workflow definition:
         mode: update
         new_remote_id: pippo
         match:
-            content_id: reference:slot:content_id
+            content_id: reference:signal:content_id
 
 *Stay tuned...*

@@ -39,19 +39,19 @@ class WorkflowServiceFacade
     }
 
     /**
-     * Returns VALID definitions for a given slot
-     * @param $slotName
+     * Returns VALID definitions for a given signal
+     * @param $signalName
      * @param string[] $paths
      * @return MigrationDefinitionCollection
      * @todo add caching as this is quite inefficient
      */
-    public function getValidWorkflowsDefinitionsForSlot($slotName, $paths = array())
+    public function getValidWorkflowsDefinitionsForSignal($signalName, $paths = array())
     {
         $defs = array();
 
         foreach($this->getWorkflowsDefinitions($paths) as $key => $definition) {
             /// @todo add safety check that we got back in fact a WorkflowDefinition
-            if ($definition->slotName === $slotName && $definition->status == MigrationDefinition::STATUS_PARSED) {
+            if ($definition->signalName === $signalName && $definition->status == MigrationDefinition::STATUS_PARSED) {
                 $defs[$key] = $definition;
             }
         }

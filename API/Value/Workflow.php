@@ -6,9 +6,9 @@ use Kaliop\eZMigrationBundle\API\Value\Migration;
 
 class Workflow extends Migration
 {
-    protected $slotName;
+    protected $signalName;
 
-    public function __construct($name, $md5, $path, $executionDate = null, $status = 0, $executionError = null, $slotName = null)
+    public function __construct($name, $md5, $path, $executionDate = null, $status = 0, $executionError = null, $signalName = null)
     {
         $this->name = $name;
         $this->md5 = $md5;
@@ -16,6 +16,6 @@ class Workflow extends Migration
         $this->executionDate = $executionDate;
         $this->status = $status;
         $this->executionError = $executionError;
-        $this->slotName = $slotName;
+        $this->signalName = $signalName;
     }
 }

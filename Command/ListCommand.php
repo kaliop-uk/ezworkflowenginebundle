@@ -44,7 +44,7 @@ class ListCommand extends AbstractCommand
             }
             $data[] = array(
                 $i++,
-                $workflowDefinition->slotName,
+                $workflowDefinition->signalName,
                 $name,
                 //$workflowDefinition->path,
                 $workflowDefinition->parsingError
@@ -54,7 +54,7 @@ class ListCommand extends AbstractCommand
 
         $table = $this->getHelperSet()->get('table');
         $table
-            ->setHeaders(array('#', 'Slot', 'Workflow', /*'Path',*/ 'Notes'))
+            ->setHeaders(array('#', 'Signal', 'Workflow', /*'Path',*/ 'Notes'))
             ->setRows($data);
         $table->render($output);
     }
