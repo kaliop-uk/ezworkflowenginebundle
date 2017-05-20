@@ -56,16 +56,43 @@ class StatusCommand extends AbstractCommand
             }
 
             switch ($workflow->status) {
+                case Migration::STATUS_DONE:
+                    $status = '<info>executed</info>';
+                    break;
+                case Migration::STATUS_STARTED:
+                    $status = '<comment>execution started</comment>';
+                    break;
+                case Migration::STATUS_TODO:
+                    // bold to-migrate!
+                    $status = '<error>not executed</error>';
+                    break;
+                case Migration::STATUS_SKIPPED:
+                    $status = '<comment>skipped</comment>';
+                    break;
+                case Migration::STATUS_PARTIALLY_DONE:
+                    $status = '<comment>partially executed</comment>';
+                    break;
+                case Migration::STATUS_SUSPENDED:
+                    $status = '<comment>suspended</comment>';
+                    break;
+                case Migration::STATUS_FAILED:
+                    $status = '<error>failed</error>';
+                    break;
+            }
+
+            switch ($workflow->status) {
                 case Migration::STATUS_FAILED:
                     $name = '<error>' . $workflow->name . '</error>';
                     break;
                 default:
                     $name = $workflow->name;
             }
+
             $data[] = array(
                 $i++,
                 $name,
                 $workflow->signalName,
+                $status,
                 $workflow->executionDate != null ? date("Y-m-d H:i:s", $workflow->executionDate) : '',
                 $workflow->executionError,
             );
@@ -79,7 +106,7 @@ class StatusCommand extends AbstractCommand
             $data = $summary;
             $headers = array('Status', 'Count');
         } else {
-            $headers = array('#', 'Workflow', 'Signal', 'Executed on', 'Notes');
+            $headers = array('#', 'Workflow', 'Signal', 'Status', 'Executed on', 'Notes');
         }
         $table = $this->getHelperSet()->get('table');
         $table

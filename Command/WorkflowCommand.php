@@ -95,6 +95,7 @@ EOT
             $output->writeln('Status: ' . $status);
             $output->writeln('Executed on: <info>' . ($workflow->executionDate != null ? date("Y-m-d H:i:s", $workflow->executionDate) : '--'). '</info>');
             $output->writeln('Execution notes: <info>' . $workflow->executionError . '</info>');
+            $output->writeln('Signal: <info>' . $workflow->signalName . '</info>');
 
             if ($workflow->status == Migration::STATUS_SUSPENDED) {
                 /// @todo decode the suspension context: date, step, ...
@@ -119,6 +120,10 @@ EOT
                             if (md5($workflowDefinition->rawDefinition) != $workflow->md5) {
                                 $output->writeln('Notes: <comment>The workflow definition file has now a different checksum</comment>');
                             }
+
+                            $output->writeln('Switch User: <info>' . (($workflowDefinition->runAs === false) ? '-' : $workflowDefinition->runAs) . '</info>');
+                            $output->writeln('Use transaction: <info>' . ($workflowDefinition->useTransaction ? 'Y' : 'N') . '</info>');
+
                         } else {
                             $output->writeln('Definition error: <error>The workflow definition file can not be loaded</error>');
                         }
