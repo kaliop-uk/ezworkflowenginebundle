@@ -11,6 +11,7 @@ class WorkflowTrigger extends Slot
 {
     protected $workflowService;
     protected $referenceResolver;
+    static $workflowExecuting = 0;
 
     public function __construct($workflowService, ReferenceBagInterface $referenceResolver)
     {
@@ -32,6 +33,7 @@ class WorkflowTrigger extends Slot
     /**
      * @param string $signalName must use the same format as we extract from signal class names
      * @param array $parameters must follow what is found in eZ5 signals
+     * @throws \Exception
      */
     public function triggerWorkflow($signalName, array $parameters)
     {
@@ -45,6 +47,12 @@ class WorkflowTrigger extends Slot
 
             /** @var WorkflowDefinition $workflowDefinition */
             foreach ($workflowDefinitions as $workflowDefinition) {
+
+                /// q: is it correct to put this here, or should it be in workflowService->executeWorkflow() ?
+                if (self::$workflowExecuting > 0 && $workflowDefinition->avoidRecursion) {
+                    return;
+                }
+
                 $wfd = new WorkflowDefinition(
                     $workflowDefinition->name,
                     $workflowDefinition->path,
@@ -54,11 +62,19 @@ class WorkflowTrigger extends Slot
                     null,
                     $signalName,
                     $workflowDefinition->runAs,
-                    $workflowDefinition->useTransaction
+                    $workflowDefinition->useTransaction,
+                    $workflowDefinition->avoidRecursion
                 );
 
-                /// @todo allow setting of default lang ?
-                $this->workflowService->executeWorkflow($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs);
+                self::$workflowExecuting += 1;
+                try {
+                    /// @todo allow setting of default lang ?
+                    $this->workflowService->executeWorkflow($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs);
+                    self::$workflowExecuting -= 1;
+                } catch (\Exception $e) {
+                    self::$workflowExecuting -= 1;
+                    throw $e;
+                }
             }
         }
     }

@@ -43,7 +43,8 @@ class WorkflowServiceInner extends MigrationService
                             "Can not handle workflow step of type '{$step->type}'",
                             isset($migrationDefinition->signalName) ? $migrationDefinition->signalName : null,
                             isset($migrationDefinition->runAs) ? $migrationDefinition->runAs : false,
-                            isset($migrationDefinition->useTransaction) ? $migrationDefinition->useTransaction : false
+                            isset($migrationDefinition->useTransaction) ? $migrationDefinition->useTransaction : false,
+                            isset($migrationDefinition->avoidRecursion) ? $migrationDefinition->avoidRecursion : false
                         );
                     }
                 }

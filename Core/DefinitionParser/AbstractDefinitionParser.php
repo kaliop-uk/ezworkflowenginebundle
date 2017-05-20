@@ -21,6 +21,7 @@ class AbstractDefinitionParser extends BaseParser
         // false stands for 'use current user'
         $user = false;
         $useTransaction = false;
+        $avoidRecursion = false;
 
         if ($status == MigrationDefinition::STATUS_PARSED) {
 
@@ -57,6 +58,10 @@ class AbstractDefinitionParser extends BaseParser
                     $useTransaction = $dsl[WorkflowDefinition::MANIFEST_USETRANSACTION_ELEMENT];
                 }
 
+                if (isset($dsl[WorkflowDefinition::MANIFEST_AVOIDRECURSION_ELEMENT])) {
+                    $avoidRecursion = $dsl[WorkflowDefinition::MANIFEST_AVOIDRECURSION_ELEMENT];
+                }
+
             } while(false);
         }
 
@@ -69,7 +74,8 @@ class AbstractDefinitionParser extends BaseParser
             $error,
             $signalName,
             $user,
-            $useTransaction
+            $useTransaction,
+            $avoidRecursion
         );
     }
 }
