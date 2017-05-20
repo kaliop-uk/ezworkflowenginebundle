@@ -53,11 +53,12 @@ class WorkflowTrigger extends Slot
                     $workflowDefinition->steps->getArrayCopy(),
                     null,
                     $signalName,
-                    $workflowDefinition->runAs
+                    $workflowDefinition->runAs,
+                    $workflowDefinition->useTransaction
                 );
 
-                /// @todo allow setting of userTransaction, default lang ?
-                $this->workflowService->executeWorkflow($wfd, true, null, $workflowDefinition->runAs);
+                /// @todo allow setting of default lang ?
+                $this->workflowService->executeWorkflow($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs);
             }
         }
     }

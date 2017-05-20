@@ -20,6 +20,7 @@ class AbstractDefinitionParser extends BaseParser
         $signalName = '';
         // false stands for 'use current user'
         $user = false;
+        $useTransaction = false;
 
         if ($status == MigrationDefinition::STATUS_PARSED) {
 
@@ -52,6 +53,10 @@ class AbstractDefinitionParser extends BaseParser
                     $user = $dsl[WorkflowDefinition::MANIFEST_RUNAS_ELEMENT];
                 }
 
+                if (isset($dsl[WorkflowDefinition::MANIFEST_USETRANSACTION_ELEMENT])) {
+                    $useTransaction = $dsl[WorkflowDefinition::MANIFEST_USETRANSACTION_ELEMENT];
+                }
+
             } while(false);
         }
 
@@ -63,7 +68,8 @@ class AbstractDefinitionParser extends BaseParser
             $steps,
             $error,
             $signalName,
-            $user
+            $user,
+            $useTransaction
         );
     }
 }

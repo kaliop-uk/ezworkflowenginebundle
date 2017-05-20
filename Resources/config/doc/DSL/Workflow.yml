@@ -1,11 +1,13 @@
 # Every workflow definition must start with a 'manifest' as 1st step, which follows the following schema:
+
 -
     type: workflow
     signal: XXXService\YYYSignal # See the complete list at https://doc.ez.no/display/EZP/Signals+reference
-    run_as: admin # Optional. If not set, workflows execute as the current user. If set, as the user specified here
+    run_as: admin # Optional. If not set or false, the workflow will execute as the current user. If set, as the user specified here
+    transaction: false # Optional. If set to true, the whole workflow will execute within a database transaction
 
 
-# Other steps include *all* steps which are valid in a Migration from the Kaliop Migration Bundle, plus:
+# Other steps include *all* steps which are valid in a Migration from the Kaliop Migration Bundle, plus the following:
 
 -
     # Cancel execution of a workflow: all steps following the current one will not be executed.
