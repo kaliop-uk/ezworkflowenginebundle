@@ -59,6 +59,7 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
         $workflowTriggerSlot = $serviceContainer->get( 'ez_workflowengine_bundle.slot.workflowtrigger' );
 
         try {
+            eZDebug::writeDebug("Triggering any eZ5 workflows available for signal '$signalName' with parameters:".preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($signalParameters, true))), __METHOD__);
             $workflowTriggerSlot->triggerWorkflow( $signalName, $signalParameters );
         } catch (\Exception $e) {
             eZDebug::writeError($e->getMessage(), __METHOD__);

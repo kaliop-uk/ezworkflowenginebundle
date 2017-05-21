@@ -2,6 +2,7 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Core\Slot;
 
+use Psr\Log\LoggerInterface;
 use eZ\Publish\Core\SignalSlot\Slot;
 use eZ\Publish\Core\SignalSlot\Signal;
 use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
@@ -11,12 +12,15 @@ class WorkflowTrigger extends Slot
 {
     protected $workflowService;
     protected $referenceResolver;
+    protected $logger;
+
     static $workflowExecuting = 0;
 
-    public function __construct($workflowService, ReferenceBagInterface $referenceResolver)
+    public function __construct($workflowService, ReferenceBagInterface $referenceResolver, LoggerInterface $logger = null)
     {
         $this->workflowService = $workflowService;
         $this->referenceResolver = $referenceResolver;
+        $this->logger = $logger;
     }
 
     public function receive(Signal $signal)
@@ -39,10 +43,15 @@ class WorkflowTrigger extends Slot
     {
         $workflowDefinitions = $this->workflowService->getValidWorkflowsDefinitionsForSignal($signalName);
 
+        if ($this->logger) $this->logger->debug("Found " . count($workflowDefinitions) . " workflow definitions for signal '$signalName'");
+
         if (count($workflowDefinitions)) {
 
+            $convertedParameters = array();
             foreach($parameters as $parameter => $value) {
-                $this->referenceResolver->addReference('signal:' . $this->convertSignalMember($signalName, $parameter), $value, true);
+                $convertedParameter = $this->convertSignalMember($signalName, $parameter);
+                $this->referenceResolver->addReference('signal:' . $convertedParameter, $value, true);
+                $convertedParameters[$convertedParameter] = $value;
             }
 
             /** @var WorkflowDefinition $workflowDefinition */
@@ -50,6 +59,7 @@ class WorkflowTrigger extends Slot
 
                 /// q: is it correct to put this here, or should it be in workflowService->executeWorkflow() ?
                 if (self::$workflowExecuting > 0 && $workflowDefinition->avoidRecursion) {
+                    if ($this->logger) $this->logger->debug("Skipping workflow '{$workflowDefinition->name}' to avoid recursion (workflow already executing)");
                     return;
                 }
 
@@ -68,6 +78,9 @@ class WorkflowTrigger extends Slot
 
                 self::$workflowExecuting += 1;
                 try {
+
+                    if ($this->logger) $this->logger->debug("Executing workflow '{$workflowDefinition->name}' with parameters: " . preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($convertedParameters, true))));
+
                     /// @todo allow setting of default lang ?
                     $this->workflowService->executeWorkflow($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs);
                     self::$workflowExecuting -= 1;

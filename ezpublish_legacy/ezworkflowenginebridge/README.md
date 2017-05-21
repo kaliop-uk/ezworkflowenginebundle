@@ -32,7 +32,8 @@ Setting it up
 
      ez4 trigger: content / hide / after => ez5 signal: LocationService\HideLocationSignal
 
-4. test it
+4. test it: when enabling debug.log, you should see a line for every time the `Run WorkFlowEngineBundle workflows` event
+     is executed as part of an ez4 workflow
 
 FAQ
 ===
