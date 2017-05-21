@@ -8,6 +8,9 @@ use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 class WorkflowServiceInner extends MigrationService
 {
+
+    protected $eventPrefix = 'ez_workflow.';
+
     public function addMigration(MigrationDefinition $migrationDefinition)
     {
         throw new \Exception("Unsupported operation: direct adding of workflows");
@@ -53,6 +56,6 @@ class WorkflowServiceInner extends MigrationService
             }
         }
 
-        throw new \Exception("No parser available to parse migration definition '{$migrationDefinition->name}'");
+        throw new \Exception("No parser available to parse workflow definition '{$migrationDefinition->name}'");
     }
 }
