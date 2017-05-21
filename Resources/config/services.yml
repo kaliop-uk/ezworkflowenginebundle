@@ -23,6 +23,8 @@ services:
         class: '%ez_workflowengine_bundle.workflow_service.facade.class%'
         arguments:
             - '@ez_workflowengine_bundle.workflow_service.inner'
+            - '%kernel.cache_dir%/ezworkflowdefinitions'
+            - '%kernel.debug%'
 
     ez_workflowengine_bundle.workflow_service.inner:
         class: '%ez_workflowengine_bundle.workflow_service.inner.class%'

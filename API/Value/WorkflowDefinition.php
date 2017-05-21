@@ -30,14 +30,14 @@ class WorkflowDefinition extends MigrationDefinition
      * @param string $path
      * @param string $rawDefinition
      * @param int $status
-     * @param array $steps
+     * @param MigrationStep[]|MigrationStepsCollection $steps
      * @param string $parsingError
      * @param string $signalName
      * @param string|int|false|null $runAs if false will use the current user; if null will use hardcoded 14; string for login or user id
      * @param bool $useTransaction
      * @throws \Exception
      */
-    public function __construct($name, $path, $rawDefinition, $status = 0, array $steps = array(), $parsingError = null,
+    public function __construct($name, $path, $rawDefinition, $status = 0, $steps = array(), $parsingError = null,
         $signalName = null, $runAs = false, $useTransaction = false, $avoidRecursion = false)
     {
         if ($status == MigrationDefinition::STATUS_PARSED && $signalName == null) {
@@ -51,6 +51,27 @@ class WorkflowDefinition extends MigrationDefinition
 
         parent::__construct(
             $name, $path, $rawDefinition, $status, $steps, $parsingError
+        );
+    }
+
+    /**
+     * Allow the class to be serialized to php using var_export
+     * @param array $data
+     * @return static
+     */
+    public static function __set_state(array $data)
+    {
+        return new static(
+            $data['name'],
+            $data['path'],
+            $data['rawDefinition'],
+            $data['status'],
+            $data['steps'],
+            $data['parsingError'],
+            $data['signalName'],
+            $data['runAs'],
+            $data['useTransaction'],
+            $data['avoidRecursion']
         );
     }
 }

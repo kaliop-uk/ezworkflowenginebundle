@@ -8,8 +8,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Filesystem extends BaseLoader
 {
-    protected $namePrefix = 'workflow://';
-
     public function __construct(KernelInterface $kernel, $versionDirectory = 'Workflows')
     {
         $this->versionDirectory = $versionDirectory;
