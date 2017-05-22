@@ -25,10 +25,11 @@ class WorkflowServiceFacade
     }
 
     /**
-     * Unlike its parent's similar function, this one only deals with *parsed* definitions
+     * Unlike its parent's similar function, this one only deals with *parsed* definitions.
+     * NB: this function, unlike getValidWorkflowsDefinitionsForSignal, does not cache its results, which might lead to
+     * some hard-to troubleshoot weirdness...
      * @param string[] $paths
      * @return MigrationDefinitionCollection
-     * @todo add caching as this is quite inefficient
      */
     public function getWorkflowsDefinitions($paths = array())
     {
@@ -50,7 +51,6 @@ class WorkflowServiceFacade
      * @param $signalName
      * @param string[] $paths
      * @return MigrationDefinitionCollection
-     * @todo add caching as this is quite inefficient
      */
     public function getValidWorkflowsDefinitionsForSignal($signalName, $paths = array())
     {
