@@ -7,17 +7,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\Yaml\Yaml;
-use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
-use Kaliop\eZMigrationBundle\API\MatcherInterface;
 
 class GenerateCommand extends AbstractCommand
 {
     const DIR_CREATE_PERMISSIONS = 0755;
 
-    private $availableMigrationFormats = array('yml', 'json');
-    //private $availableModes = array('create', 'update', 'delete');
-    //private $availableTypes = array('role', 'content', 'content_type', 'content_type_group', 'object_state_group', 'section', 'generic', 'db', 'php');
+    private $availableWorkflowFormats = array('yml', 'json');
     private $thisBundle = 'EzWorkflowEngineBundle';
 
     /**
@@ -27,7 +22,7 @@ class GenerateCommand extends AbstractCommand
     {
         $this->setName('kaliop:workflows:generate')
             ->setDescription('Generate a blank workflows definition file.')
-            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The format of workflow file to generate (' . implode(', ', $this->availableMigrationFormats) . ')', 'yml')
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The format of workflow file to generate (' . implode(', ', $this->availableWorkflowFormats) . ')', 'yml')
             ->addArgument('bundle', InputArgument::REQUIRED, 'The bundle to generate the workflow definition file in. eg.: AcmeWorkflowsBundle')
             ->addArgument('name', InputArgument::OPTIONAL, 'The workflow name (will be prefixed with current date)', null)
             ->setHelp(<<<EOT
@@ -56,11 +51,11 @@ EOT
             throw new \InvalidArgumentException("It is not allowed to create workflows in bundle '$bundleName'");
         }
 
-        if (!in_array($fileType, $this->availableMigrationFormats)) {
-            throw new \InvalidArgumentException('Unsupported migration file format ' . $fileType);
+        if (!in_array($fileType, $this->availableWorkflowFormats)) {
+            throw new \InvalidArgumentException('Unsupported workflow file format ' . $fileType);
         }
 
-        $workflowDirectory = $this->getMigrationDirectory($bundleName);
+        $workflowDirectory = $this->getWorkflowDirectory($bundleName);
 
         if (!is_dir($workflowDirectory)) {
             $output->writeln(sprintf(
@@ -100,10 +95,10 @@ EOT
     }
 
     /**
-     * Generates a migration definition file.
+     * Generates a workflow definition file.
      *
      * @param string $path filename to file to generate (full path)
-     * @param string $fileType The type of migration file to generate
+     * @param string $fileType The type of workflow file to generate
      * @param array $parameters
      * @return string A warning message in case file generation was OK but there was something weird
      * @throws \Exception
@@ -112,7 +107,7 @@ EOT
     {
         $warning = '';
 
-        // Generate migration file by template
+        // Generate workflow file by template
         $template = 'Workflow.' . $fileType . '.twig';
         $templatePath = $this->getApplication()->getKernel()->getBundle($this->thisBundle)->getPath() . '/Resources/views/WorkflowTemplate/';
         if (!is_file($templatePath . $template)) {
@@ -130,7 +125,7 @@ EOT
      * @param string $bundleName a bundle name or filesystem path to a directory
      * @return string
      */
-    protected function getMigrationDirectory($bundleName)
+    protected function getWorkflowDirectory($bundleName)
     {
         // Allow direct usage of a directory path instead of a bundle name
         if (strpos($bundleName, '/') !== false && is_dir($bundleName)) {
