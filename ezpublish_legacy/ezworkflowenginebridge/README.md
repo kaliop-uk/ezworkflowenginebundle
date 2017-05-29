@@ -1,7 +1,7 @@
 ezworkflowenginebridge
 ======================
 
-This extension is designed to allow usage of the Workflow Engine from the Kaliop eZ Workflow Engine Bundle from an
+This extension is designed to allow usage of the Workflow Engine from the 'Kaliop eZ Workflow Engine Bundle' from an
 eZPublish 4 context.
 
 In other words: with it you can create eZPublish 4 workflows that will run any corresponding, predefined eZPublish 5 workflows.
@@ -39,9 +39,9 @@ FAQ
 ===
 
 Q: can the `Run WorkFlowEngineBundle workflows` event be used for any type of content trigger?
-A: yes. But you are probably better off if you hook it up to AFTER trigger.
-    Actually, 2 triggers are currently not supported: content/delete and content/updateobjectstate. This is due to how
-    those triggers work in eZ4 and is not easy to fix or work around.
+A: Almost. But you are probably better off if you hook it up to AFTER trigger.
+    Actually, 3 triggers are currently not supported: content/delete, content/removelocation and content/updateobjectstate.
+    This is due to how those triggers work in eZ4 and is not easy to fix without hackish work-arounds.
 
 Q: can the `Run WorkFlowEngineBundle workflows` event be used for custom triggers which come from legacy extensions?
 A: yes. In this case the name of the Signal to use in your ez5 workflow definition will use a slightly different format,

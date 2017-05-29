@@ -11,7 +11,10 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
         'content_hide' => array( 'pre' => false, 'post' => 'LocationService\HideLocationSignal' ),
         'content_move' => array( 'pre' => false, 'post' => 'LocationService\MoveSubtreeSignal' ),
         'content_publish' => array( 'pre' => false, 'post' => 'ContentService\PublishVersionSignal' ),
-        'content_removelocation' => array( 'pre' => false, 'post' => 'LocationService\DeleteLocationSignal' ),
+        // this legacy operation does not allow us to retrieve in all scenarios the object_id, needed for the corresponding signal
+        //'content_removelocation' => array( 'pre' => false, 'post' => 'LocationService\DeleteLocationSignal' ),
+        // this legacy operation does not seem to have any corresponding eZ5 signal...
+        //'content_removetranslation' => '',
         'content_sort' => array( 'pre' => false, 'post' => 'LocationService\UpdateLocationSignal' ),
         'content_swap' => array( 'pre' => false, 'post' => 'LocationService\SwapLocationSignal' ),
         'content_updatealwaysavailable' => array( 'pre' => false, 'post' => 'ContentService\UpdateContentMetadataSignal' ),
@@ -21,8 +24,6 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
         //'content_updateobjectstate' => 'ObjectStateService\SetContentStateSignal' ),
         'content_updatepriority' => array( 'pre' => false, 'post' => 'LocationService\UpdateLocationSignal' ),
         'content_updatesection' => array( 'pre' => false, 'post' => 'SectionService\AssignSectionSignal' ),
-        // this legacy operation does not seem to have any corresponding eZ5 signal...
-        //'content_removetranslation' => '',
     );
 
     /**
@@ -37,33 +38,51 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
     public function execute( $process, $event )
     {
         $parameters = $process->attribute( 'parameter_list' );
-        $triggerName = reset(explode('_', $parameters['trigger_name'], 2));
+        $triggerName = reset( explode( '_', $parameters['trigger_name'], 2 ) );
         $operationName = $parameters['module_name'] . '_' . $parameters['module_function'];
 
         $signalName = $this->getsignalName( $triggerName, $operationName );
-        if ( !$signalName ) {
-            eZDebug::writeError( "Trigger '$triggerName $operationName' can not be mapped to eZ5 workflow signal" );
+        if ( !$signalName )
+        {
+            eZDebug::writeError( "Trigger '$triggerName $operationName' can not be mapped to eZ5 workflow signal. Aborting eZ4 workflow" );
             return eZWorkflowType::STATUS_REJECTED;
         }
 
-        $signalParameters = $this->convertParameters( $triggerName, $operationName, $parameters );
-        if ( !$signalParameters ) {
-            eZDebug::writeError( "Parameters for trigger '$triggerName $operationName' can not be mapped to eZ5 workflow parameters" );
-            return eZWorkflowType::STATUS_REJECTED;
+        $signalsParameters = $this->convertParameters( $triggerName, $operationName, $parameters );
+
+        if ( !$signalsParameters )
+        {
+            eZDebug::writeNotice( "Parameters for trigger '$triggerName $operationName' do not map to an eZ5 workflow. Continuing the eZ4 workflow" );
+            // this is a way to gracefully avoid triggering eZ5 workflows without failing the ez4 one
+            return eZWorkflowType::STATUS_ACCEPTED;
         }
 
-        $signalParameters['legacyTrigger'] = $triggerName;
-        $signalParameters['legacyOperation'] = $operationName;
+        foreach ($signalsParameters as $signalParameters)
+        {
+            if ( !is_array( $signalParameters ) || ! count( $signalParameters ) )
+            {
+                eZDebug::writeError( "Parameters for trigger '$triggerName $operationName' can not be mapped to eZ5 workflow parameters. Aborting eZ4 workflow" );
+                return eZWorkflowType::STATUS_REJECTED;
+            }
 
-        $serviceContainer = ezpKernel::instance()->getServiceContainer();
-        $workflowTriggerSlot = $serviceContainer->get( 'ez_workflowengine_bundle.slot.workflowtrigger' );
+            $signalParameters['legacyTrigger'] = $triggerName;
+            $signalParameters['legacyOperation'] = $operationName;
 
-        try {
-            eZDebug::writeDebug("Triggering any eZ5 workflows available for signal '$signalName' with parameters:".preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($signalParameters, true))), __METHOD__);
-            $workflowTriggerSlot->triggerWorkflow( $signalName, $signalParameters );
-        } catch (\Exception $e) {
-            eZDebug::writeError($e->getMessage(), __METHOD__);
-            return eZWorkflowType::STATUS_REJECTED;
+            $serviceContainer = ezpKernel::instance()->getServiceContainer();
+            $workflowTriggerSlot = $serviceContainer->get( 'ez_workflowengine_bundle.slot.workflowtrigger' );
+
+            try
+            {
+                eZDebug::writeDebug( "Triggering any eZ5 workflows available for signal '$signalName' with parameters:" .
+                    preg_replace( "/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r( $signalParameters, true ) ) ),
+                    __METHOD__
+                );
+                $workflowTriggerSlot->triggerWorkflow( $signalName, $signalParameters );
+            } catch ( \Exception $e )
+            {
+                eZDebug::writeError( $e->getMessage(), __METHOD__ );
+                return eZWorkflowType::STATUS_REJECTED;
+            }
         }
 
         return eZWorkflowType::STATUS_ACCEPTED;
@@ -77,23 +96,48 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
      */
     protected function getsignalName( $triggerName, $operationName )
     {
-        if (!isset(self::$signalMapping[$operationName][$triggerName])) {
+        if ( !isset( self::$signalMapping[$operationName][$triggerName] ) )
+        {
             return $triggerName . '_' . $operationName;
         }
 
         return self::$signalMapping[$operationName][$triggerName];
     }
 
+    /**
+     * @param $triggerName
+     * @param $operationName
+     * @param array $parameters
+     * @return array[] Each element is an array of parameters, used to trigger an ez5 workflow. Return array( false )
+     *                 for error conditions and array() to ignore ez5 workflows but continue the ez4 one
+     */
     protected function convertParameters( $triggerName, $operationName, array $parameters )
     {
         /// @see https://doc.ez.no/display/EZP/Signals+reference
-        switch( $operationName ) {
+        switch( $operationName )
+        {
             case 'content_addlocation':
-                return array(
-                    'contentId' => $parameters['object_id'],
-                    /// @todo grab location id of created node
-                    'locationId' => '',
-                );
+                $out = array();
+                // loop over all locations of content and find the ones which are children of the parents from the trigger
+                // NB: will break if eZ allows to create 2 locations in the same place for a single content...
+                $locations = eZContentObjectTreeNode::fetchByContentObjectID($parameters['object_id']);
+                foreach( $parameters['select_node_id_array'] as $parentNodeId )
+                {
+                    foreach( $locations as $contentLocation )
+                    {
+                        if ( $contentLocation->attribute( 'parent_node_id' ) == $parentNodeId )
+                        {
+                            $out[] = array(
+                                'contentId' => $parameters['object_id'],
+                                /// @todo grab location id of created node
+                                'locationId' => $contentLocation->attribute( 'node_id' ),
+                            );
+                            break;
+                        }
+                    }
+                }
+
+                return $out;
 
             /*case 'content_delete':
                 /// @todo this only works on BEFORE trigger (or when using trash): we get a list of nodes and need to find the object...
@@ -103,96 +147,121 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
 
             case 'content_hide':
                 $objectId = $this->objectIdFromNodeId($parameters['node_id']);
-                if ( !$objectId ) {
-                    return false;
+                if ( !$objectId )
+                {
+                    return array( false );
                 }
-                return array(
+                return array( array(
                     'locationId' => $parameters['node_id'],
                     'contentId' => $objectId,
-                );
+                ) );
 
             case 'content_move':
-                return array(
+                return array( array(
                     'locationId' => $parameters['node_id'],
                     'newParentLocationId' => $parameters['new_parent_node_id'],
-                );
+                ) );
 
             case 'content_publish':
-                return array(
+                return array( array(
                     'contentId' => $parameters['object_id'],
                     'versionNo' => $parameters['version'],
-                );
+                ) );
 
-            case 'content_removelocation':
-                /// @todo we get an array, but generate only signal 1 removal!
-                $nodeId = reset( $parameters['node_list'] );
-                if ( is_object( $nodeId ) ) {
-                    $nodeId = $nodeId->attribute( 'node_id' );
+            /*case 'content_removelocation':
+                $out = array();
+                foreach( $parameters['node_list'] as $nodeId )
+                {
+                    if ( is_object( $nodeId ) )
+                    {
+                        $node = $nodeId;
+                        $nodeId = $node->attribute( 'node_id' );
+                    }
+                    else
+                    {
+                        // note: this will most likely fail, as we get the node ids of nodes just removed...
+                        $node = \eZContentObjectTreeNode::fetch( $nodeId );
+                        if ( !$node )
+                        {
+                            return array( false );
+                        }
+                    }
+                    $object = $node->attribute( 'content' );
+                    if ( !$object )
+                    {
+                        return array( false );
+                    }
+                    $objectId =  $object->attribute( 'id' );
+                    $out[] = array(
+                        'contentId' => $objectId,
+                        'locationId' => $nodeId,
+                    );
                 }
-                return array(
-                    'contentId' => '',
-                    'locationId' => $nodeId,
-                );
+                return $out;*/
+
+            //case 'content_removetranslation':
 
             case 'content_sort':
                 $objectId = $this->objectIdFromNodeId( $parameters['node_id'] );
-                if ( !$objectId ) {
-                    return false;
+                if ( !$objectId )
+                {
+                    return array( false );
                 }
-                return array(
+                return array( array(
                     'contentId' => $objectId,
                     'locationId' => $parameters['node_id'],
-                );
+                ) );
 
             case 'content_swap':
                 $objectId1 = $this->objectIdFromNodeId( $parameters['node_id'] );
                 $objectId2 = $this->objectIdFromNodeId( $parameters['selected_node_id'] );
-                if ( !$objectId1 || !$objectId2 ) {
-                    return false;
+                if ( !$objectId1 || !$objectId2 )
+                {
+                    return array( false );
                 }
-                return array(
+                return array( array(
                     'content1Id' => $objectId1,
                     'location1Id' => $parameters['node_id'],
                     'content2Id' => $objectId2,
                     'location2Id' => $parameters['selected_node_id'],
-                );
+                ) );
 
             case 'content_updatemainassignment':
-                return array(
+                return array( array(
                     'contentId' => $parameters['object_id'],
-                );
+                ) );
 
             case 'content_updatepriority':
                 $objectId = $this->objectIdFromNodeId($parameters['node_id']);
-                if ( !$objectId ) {
-                    return false;
+                if ( !$objectId )
+                {
+                    return array( false );
                 }
-                return array(
+                return array( array(
                     'contentId' => '',
                     'locationId' => $parameters['node_id'],
-                );
+                ) );
 
             case 'content_updatesection':
                 $objectId = $this->objectIdFromNodeId($parameters['node_id']);
-                if ( !$objectId ) {
-                    return false;
+                if ( !$objectId )
+                {
+                    return array( false );
                 }
-                return array(
+                return array( array(
                     'contentId' => $objectId,
                     'sectionId' => $parameters['selected_section_id'],
-                );
+                ) );
 
             case 'content_updateinitiallanguage':
-                return array(
+                return array( array(
                     'contentId' => $parameters['object_id'],
-                );
+                ) );
 
             case 'content_updatealwaysavailable':
-                return array(
+                return array( array(
                     'contentId' => $parameters['object_id'],
-                );
-
-            //case 'content_removetranslation':
+                ) );
 
             /*case 'content_updateobjectstate':
                 /// @todo we get an array of all states, but the eZ5 event needs to know which one changed
@@ -205,7 +274,7 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
             // in case of an unmapped legacy operation, we let through all parameters unmodified - except a few known ones
             // (is it really a good idea to remove the known params?)
             default:
-                return array_diff_key($parameters, array('workflow_id', 'trigger_name', 'module_name', 'module_function', 'user_id'));
+                return array( array_diff_key( $parameters, array( 'workflow_id', 'trigger_name', 'module_name', 'module_function', 'user_id' ) ) );
         }
     }
 
