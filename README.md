@@ -92,6 +92,7 @@ A: yes. Currently the following events are emitted:
     * ez_workflow.before_execution
     * ez_workflow.step_executed
     * ez_workflow.migration_aborted
+    * ez_workflow.migration_suspended
     Note: these events are not considered final and might change in the future
 
 Q: can the workflow engine be used for scenarios where user interaction is required (eg. Content Approval ?)

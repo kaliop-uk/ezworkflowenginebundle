@@ -27,3 +27,8 @@
 # The name of the references is prefixed with 'signal:' and converted to snake case.
 # eg. the contentId of a content being published will be available as 'reference:signal:object_id'
 # The list of the properties available for each Signal is available at https://doc.ez.no/display/EZP/Signals+reference
+#
+# Extra references available:
+#
+# workflow:start_time (timestamp)
+# workflow:original_user (login)

@@ -69,7 +69,7 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
             $signalParameters['legacyOperation'] = $operationName;
 
             $serviceContainer = ezpKernel::instance()->getServiceContainer();
-            $workflowTriggerSlot = $serviceContainer->get( 'ez_workflowengine_bundle.slot.workflowtrigger' );
+            $workflowService = $serviceContainer->get( 'ez_workflowengine_bundle.workflow_service' );
 
             try
             {
@@ -77,7 +77,7 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
                     preg_replace( "/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r( $signalParameters, true ) ) ),
                     __METHOD__
                 );
-                $workflowTriggerSlot->triggerWorkflow( $signalName, $signalParameters );
+                $workflowService->triggerWorkflow( $signalName, $signalParameters );
             } catch ( \Exception $e )
             {
                 eZDebug::writeError( $e->getMessage(), __METHOD__ );

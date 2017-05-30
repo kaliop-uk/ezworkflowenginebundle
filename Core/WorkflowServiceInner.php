@@ -8,7 +8,6 @@ use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 class WorkflowServiceInner extends MigrationService
 {
-
     protected $eventPrefix = 'ez_workflow.';
 
     public function addMigration(MigrationDefinition $migrationDefinition)
