@@ -45,6 +45,9 @@ Example workflow definition:
 
         php ezpublish/console kaliop:workflows:status
 
+    Also, if you have enabled 'debug' level logging for Symfony, you will find that any time an eZPublish signal is
+    emitted, the workflow engine add to the log 1 or 2 lines with information about its actions.
+
 7. set up a cron job that will clean up the workflow table in the database by executing, fe. daily, the following:
  
         php ezpublish/console kaliop:workflows:cleanup
@@ -69,6 +72,10 @@ A: the workflow engine makes available as references the parameters found in the
                     identifier: the_object_name
                     attribute: name
 
+Q: how can I make a workflow act only on some specific content(s)?
+
+A: use a workflow/cancel step with an 'unless' condition 
+
 Q: are there steps which are specific to workflows, besides those found in the migrations bundle?
 
 A: yes. Take a look at [the docs](Resources/config/doc/DSL/Workflow.yml)
@@ -78,6 +85,14 @@ Q: can I suspend a workflow and restart it later?
 A: yes, just as you would with a migration (see the doc in the migrationbundle for details).
     NB: when a workflow is restarted, all the reference values that it had originally will be restored, however it might
     be that the contents that they refer to might have changed in the meantime.
+
+Q: does the workflow engine emit Symfony Events when workflows are run?
+
+A: yes. Currently the following events are emitted:
+    * ez_workflow.before_execution
+    * ez_workflow.step_executed
+    * ez_workflow.migration_aborted
+    Note: these events are not considered final and might change in the future
 
 Q: can the workflow engine be used for scenarios where user interaction is required (eg. Content Approval ?)
 
@@ -94,7 +109,7 @@ A: no, but you have command line tools to help with debugging and troubleshootin
 Q: why are you storing the workflow definitions in configuration files instead of using the database?
 
 A: this makes it much easier to have consistent workflows definitions across development/test/production environments,
-    as well as Continuous Integration
+    as well as Continuous Integration scenarios
 
 
 ## Integration with the Legacy Administration Interface
