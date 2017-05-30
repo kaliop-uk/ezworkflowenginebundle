@@ -1,7 +1,7 @@
 ezworkflowenginebundle
 ======================
 
-A workflow engine for eZPublish5 / eZPlatform
+A workflow engine for eZPublish5 / eZPlatform.
 
 
 ## How it works, in 10 lines of configuration 
@@ -52,13 +52,49 @@ Example workflow definition:
 
 ## Frequently asked questions
 
+Q: how can I find out which content/location the current workflow is dealing with?
+
+A: the workflow engine makes available as references the parameters found in the Signal which triggers the workflow.
+    Ex: `reference:signal:content_id`.
+    Once you have a content or location id, you can use the steps 'content/load' and 'location/load' to get hold of the
+    whole thing, and set new references to its other attributes, eg:
+    
+        - 
+            type: content
+            mode: load
+            match:
+                content_id: reference:signal:content_id
+            references:
+                -
+                    identifier: the_object_name
+                    attribute: name
+
 Q: are there steps which are specific to workflows, besides those found in the migrations bundle?
-A: yes. Go look in [the docs](Resources/config/doc/DSL/Workflow.yml)
+
+A: yes. Take a look at [the docs](Resources/config/doc/DSL/Workflow.yml)
 
 Q: can I suspend a workflow and restart it later?
+
 A: yes, just as you would with a migration (see the doc in the migrationbundle for details).
     NB: when a workflow is restarted, all the reference values that it had originally will be restored, however it might
     be that the contents that they refer to might have changed in the meantime.
+
+Q: can the workflow engine be used for scenarios where user interaction is required (eg. Content Approval ?)
+
+A: not yet, and possibly never in a "good enough" way.
+    The main reason for this is that all the eZPublish Signals are triggered 'after' an action takes place. As such, it
+    is hard to keep a content in 'for approval' state after it has already been published.
+    The 2nd reason is that at the moment there is no way to allow GUI interactions with existing workflows (but this could
+    be easily worked around with dedicated steps)
+
+Q: can I manage the workflows and triggers via a GUI, just like I used to do in eZPublish 4?
+
+A: no, but you have command line tools to help with debugging and troubleshooting
+
+Q: why are you storing the workflow definitions in configuration files instead of using the database?
+
+A: this makes it much easier to have consistent workflows definitions across development/test/production environments,
+    as well as Continuous Integration
 
 
 ## Integration with the Legacy Administration Interface
