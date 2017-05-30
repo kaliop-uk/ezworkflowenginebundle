@@ -21,7 +21,7 @@ class GenerateCommand extends AbstractCommand
     protected function configure()
     {
         $this->setName('kaliop:workflows:generate')
-            ->setDescription('Generate a blank workflows definition file.')
+            ->setDescription('Generate a blank workflow definition file.')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The format of workflow file to generate (' . implode(', ', $this->availableWorkflowFormats) . ')', 'yml')
             ->addArgument('bundle', InputArgument::REQUIRED, 'The bundle to generate the workflow definition file in. eg.: AcmeWorkflowsBundle')
             ->addArgument('name', InputArgument::OPTIONAL, 'The workflow name (will be prefixed with current date)', null)
