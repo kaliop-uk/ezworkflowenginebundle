@@ -10,6 +10,8 @@ parameters:
     ez_workflowengine_bundle.definition_parser.yaml.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\YamlDefinitionParser
     ez_workflowengine_bundle.definition_parser.json.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\JsonDefinitionParser
 
+    ez_workflowengine_bundle.executor.workflow.class: Kaliop\eZWorkflowEngineBundle\Core\Executor\WorkflowExecutor
+
     ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database\Workflow
 
     ez_workflowengine_bundle.slot.workflowtrigger.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
@@ -62,6 +64,18 @@ services:
         arguments: []
         tags:
             - { name: ez_workflowengine_bundle.definition_parser }
+
+    ### executors
+
+    ez_workflowengine_bundle.executor.workflow:
+        class: '%ez_workflowengine_bundle.executor.workflow.class%'
+        arguments:
+            - '@ez_migration_bundle.reference_matcher'
+            - '@ez_migration_bundle.executor.content_manager'
+            - '@ez_migration_bundle.executor.location_manager'
+            - '@ez_migration_bundle.executor.content_type_manager'
+        tags:
+            - { name: ez_migration_bundle.executor }
 
     ### storage handlers
 
