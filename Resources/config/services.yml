@@ -39,6 +39,8 @@ services:
             - '@ezpublish.api.repository'
             - '@event_dispatcher'
             - '@ez_migration_bundle.context_handler'
+        tags:
+            - { name: ez_migration_bundle.context_provider, label: workflow_service }
 
     ### loaders
 

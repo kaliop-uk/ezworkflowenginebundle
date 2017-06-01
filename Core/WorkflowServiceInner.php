@@ -57,4 +57,39 @@ class WorkflowServiceInner extends MigrationService
 
         throw new \Exception("No parser available to parse workflow definition '{$migrationDefinition->name}'");
     }
+
+    /**
+     * Reimplemented to store in the context the current user at start of workflow
+     * @param null $defaultLanguageCode
+     * @param null $adminLogin
+     * @return array
+     */
+    protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null)
+    {
+        $properties = parent::migrationContextFromParameters($defaultLanguageCode, $adminLogin);
+
+        $properties['originalUserLogin'] = $this->repository->getCurrentUser()->login;
+
+        return $properties;
+    }
+
+    /**
+     * When restoring the context of the original workflow, we will be running as anon, whereas the original
+     * workflow might have been started either as an admin or as then-current user. We need special handling for the
+     * latter case
+     *
+     * @param string $migrationName
+     * @param array $context
+     */
+    public function restoreContext($migrationName, array $context)
+    {
+        if (array_key_exists('adminUserLogin', $context['context']) && $context['context']['adminUserLogin'] === false) {
+            if (array_key_exists('originalUserLogin', $context['context'])) {
+                $context['context']['adminUserLogin'] = $context['context']['originalUserLogin'];
+            }
+        }
+
+        parent::restoreContext($migrationName, $context);
+    }
+
 }

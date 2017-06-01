@@ -52,6 +52,7 @@ class WorkflowServiceFacade
 
         if (count($workflowDefinitions)) {
 
+            // q: are these really needed ? we could store them in the context instead, and make the context available as custom ref...
             $this->referenceResolver->addReference('workflow:start_time', time(), true);
             $this->referenceResolver->addReference('workflow:original_user', $this->repository->getCurrentUser()->login, true);
 
