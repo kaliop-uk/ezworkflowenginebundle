@@ -20,18 +20,13 @@ class WorkflowServiceFacade
     protected $innerService;
     protected $cacheDir;
     protected $debugMode;
-    protected $referenceResolver;
     protected $logger;
-    protected $repository;
 
     protected static $workflowExecuting = 0;
 
-    public function __construct(MigrationService $innerService, ReferenceBagInterface $referenceResolver, Repository $repository,
-        $cacheDir, $debugMode = false, LoggerInterface $logger = null)
+    public function __construct(MigrationService $innerService, $cacheDir, $debugMode = false, LoggerInterface $logger = null)
     {
         $this->innerService = $innerService;
-        $this->referenceResolver = $referenceResolver;
-        $this->repository = $repository;
         $this->cacheDir = $cacheDir;
         $this->debugMode = $debugMode;
         $this->logger = $logger;
@@ -41,10 +36,10 @@ class WorkflowServiceFacade
      * q: should this method be moved to WorkflowService instead of the Slot ?
      *
      * @param string $signalName must use the same format as we extract from signal class names
-     * @param array $parameters must follow what is found in eZ5 signals
+     * @param array $signalParameters must follow what is found in eZ5 signals
      * @throws \Exception
      */
-    public function triggerWorkflow($signalName, array $parameters)
+    public function triggerWorkflow($signalName, array $signalParameters)
     {
         $workflowDefinitions = $this->getValidWorkflowsDefinitionsForSignal($signalName);
 
@@ -52,15 +47,10 @@ class WorkflowServiceFacade
 
         if (count($workflowDefinitions)) {
 
-            // q: are these really needed ? we could store them in the context instead, and make the context available as custom ref...
-            $this->referenceResolver->addReference('workflow:start_time', time(), true);
-            $this->referenceResolver->addReference('workflow:original_user', $this->repository->getCurrentUser()->login, true);
-
-            $convertedParameters = array();
-            foreach($parameters as $parameter => $value) {
+            $workflowParameters = array();
+            foreach($signalParameters as $parameter => $value) {
                 $convertedParameter = $this->convertSignalMember($signalName, $parameter);
-                $this->referenceResolver->addReference('signal:' . $convertedParameter, $value, true);
-                $convertedParameters[$convertedParameter] = $value;
+                $workflowParameters['signal:' . $convertedParameter] = $value;
             }
 
             /** @var WorkflowDefinition $workflowDefinition */
@@ -87,10 +77,10 @@ class WorkflowServiceFacade
                 self::$workflowExecuting += 1;
                 try {
 
-                    if ($this->logger) $this->logger->debug("Executing workflow '{$workflowDefinition->name}' with parameters: " . preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($convertedParameters, true))));
+                    if ($this->logger) $this->logger->debug("Executing workflow '{$workflowDefinition->name}' with parameters: " . preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($workflowParameters, true))));
 
                     /// @todo allow setting of default lang ?
-                    $this->innerService->executeMigration($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs);
+                    $this->innerService->executeMigration($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs, $workflowParameters);
                     self::$workflowExecuting -= 1;
                 } catch (\Exception $e) {
                     self::$workflowExecuting -= 1;

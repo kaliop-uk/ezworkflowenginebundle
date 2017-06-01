@@ -2,13 +2,17 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Core;
 
-use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
+use Kaliop\eZMigrationBundle\Core\ReferenceResolver\PrefixBasedResolverInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
-class WorkflowServiceInner extends MigrationService
+class WorkflowServiceInner extends MigrationService implements PrefixBasedResolverInterface
 {
     protected $eventPrefix = 'ez_workflow.';
+    protected $referenceRegexp = '/^workflow:/';
+    protected $currentWorkflowName;
 
     public function addMigration(MigrationDefinition $migrationDefinition)
     {
@@ -59,16 +63,89 @@ class WorkflowServiceInner extends MigrationService
     }
 
     /**
+     * Reimplemented to add more parameters to be stored in the context
+     *
+     * @param MigrationDefinition $migrationDefinition
+     * @param bool $useTransaction when set to false, no repo transaction will be used to wrap the migration
+     * @param string $defaultLanguageCode
+     * @param string|int|false|null $adminLogin when false, current user is used; when null, hardcoded admin account
+     * @param $workflowParameters
+     * @throws \Exception
+     *
+     * @todo treating a null and false $adminLogin values differently is prone to hard-to-track errors.
+     *       Shall we use instead -1 to indicate the desire to not-login-as-admin-user-at-all ?
+     */
+    public function executeMigration(MigrationDefinition $migrationDefinition, $useTransaction = true,
+        $defaultLanguageCode = null, $adminLogin = null, $workflowParameters = null)
+    {
+        if ($migrationDefinition->status == MigrationDefinition::STATUS_TO_PARSE) {
+            $migrationDefinition = $this->parseMigrationDefinition($migrationDefinition);
+        }
+
+        if ($migrationDefinition->status == MigrationDefinition::STATUS_INVALID) {
+            /// @todo !important name of entity should be gotten dynamically (migration vs. workflow)
+            throw new \Exception("Can not execute migration '{$migrationDefinition->name}': {$migrationDefinition->parsingError}");
+        }
+
+        /// @todo add support for setting in $migrationContext a userContentType ?
+        $migrationContext = $this->migrationContextFromParameters($defaultLanguageCode, $adminLogin, $workflowParameters);
+
+        // set migration as begun - has to be in own db transaction
+        $migration = $this->storageHandler->startMigration($migrationDefinition);
+
+        $this->executeMigrationInner($migration, $migrationDefinition, $migrationContext, 0, $useTransaction, $adminLogin);
+    }
+
+    /**
+     * Reimplemented to store the name of the current executing workflow
+     * @param Migration $migration
+     * @param MigrationDefinition $migrationDefinition
+     * @param array $migrationContext
+     * @param int $stepOffset
+     * @param bool $useTransaction when set to false, no repo transaction will be used to wrap the migration
+     * @param string|int|false|null $adminLogin used only for committing db transaction if needed. If false or null, hardcoded admin is used
+     * @throws \Exception
+     */
+    protected function executeMigrationInner(Migration $migration, MigrationDefinition $migrationDefinition,
+        $migrationContext, $stepOffset = 0, $useTransaction = true, $adminLogin = null)
+    {
+        $this->currentWorkflowName = $migration->name;
+        try {
+            parent::executeMigrationInner($migration, $migrationDefinition, $migrationContext, $stepOffset,
+                $useTransaction, $adminLogin);
+            $this->currentWorkflowName = null;
+        } catch (\Exception $e) {
+            $this->currentWorkflowName = null;
+            throw $e;
+        }
+    }
+
+    /**
      * Reimplemented to store in the context the current user at start of workflow
+     *
      * @param null $defaultLanguageCode
      * @param null $adminLogin
+     * @param array $workflowParameters
      * @return array
      */
-    protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null)
+    protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null, $workflowParameters = null)
     {
         $properties = parent::migrationContextFromParameters($defaultLanguageCode, $adminLogin);
 
-        $properties['originalUserLogin'] = $this->repository->getCurrentUser()->login;
+        if (!is_array($workflowParameters)) {
+            /// @todo log warning
+            $workflowParameters = array();
+        }
+
+        $workflowParameters = array_merge(
+            array(
+                'original_user' => $this->repository->getCurrentUser()->login,
+                'start_time' => time()
+            ),
+            $workflowParameters
+        );
+
+        $properties['workflow'] = $workflowParameters;
 
         return $properties;
     }
@@ -84,12 +161,61 @@ class WorkflowServiceInner extends MigrationService
     public function restoreContext($migrationName, array $context)
     {
         if (array_key_exists('adminUserLogin', $context['context']) && $context['context']['adminUserLogin'] === false) {
-            if (array_key_exists('originalUserLogin', $context['context'])) {
-                $context['context']['adminUserLogin'] = $context['context']['originalUserLogin'];
+            if (isset($context['context']['workflow']['original_user'])) {
+                $context['context']['adminUserLogin'] = $context['context']['workflow']['original_user'];
             }
         }
 
         parent::restoreContext($migrationName, $context);
     }
 
+    ### reference resolver interface
+
+    public function getRegexp()
+    {
+        return $this->referenceRegexp;
+    }
+
+    public function isReference($stringIdentifier)
+    {
+        if (!is_string($stringIdentifier)) {
+            return false;
+        }
+
+        return (bool)preg_match($this->referenceRegexp, $stringIdentifier);
+    }
+
+    /**
+     * @param string $stringIdentifier
+     * @return mixed
+     * @throws \Exception if the given Identifier is not a reference
+     */
+    public function getReferenceValue($stringIdentifier)
+    {
+        $context = $this->getCurrentContext($this->currentWorkflowName);
+        if (!is_array($context) || !isset($context['context']['workflow']) || !is_array($context['context']['workflow'])) {
+            throw new \Exception('Can not resolve reference to a workflow parameter as workflow context is missing');
+        }
+
+        $identifier = preg_replace($this->referenceRegexp, '', $stringIdentifier);
+
+        if (!array_key_exists($identifier, $context['context']['workflow'])) {
+            throw new \Exception("No workflow reference set with identifier '$identifier'");
+        }
+
+        return $context['context']['workflow'][$identifier];
+    }
+
+    /**
+     * @param string $stringIdentifier
+     * @return mixed $stringIdentifier if not a reference, otherwise the reference vale
+     * @throws \Exception if the given Identifier is not a reference
+     */
+    public function resolveReference($stringIdentifier)
+    {
+        if ($this->isReference($stringIdentifier)) {
+            return $this->getReferenceValue($stringIdentifier);
+        }
+        return $stringIdentifier;
+    }
 }
