@@ -18,7 +18,7 @@ Example workflow definition:
         mode: update
         new_remote_id: pippo
         match:
-            content_id: reference:signal:content_id
+            content_id: workflow:signal:content_id
 
 
 ## Getting started
@@ -58,7 +58,7 @@ Example workflow definition:
 Q: how can I find out which content/location the current workflow is dealing with?
 
 A: the workflow engine makes available as references the parameters found in the Signal which triggers the workflow.
-    Ex: `reference:signal:content_id`.
+    Ex: `workflow:signal:content_id`.
     Once you have a content or location id, you can use the steps 'content/load' and 'location/load' to get hold of the
     whole thing, and set new references to its other attributes, eg:
     
@@ -66,7 +66,7 @@ A: the workflow engine makes available as references the parameters found in the
             type: content
             mode: load
             match:
-                content_id: reference:signal:content_id
+                content_id: workflow:signal:content_id
             references:
                 -
                     identifier: the_object_name
