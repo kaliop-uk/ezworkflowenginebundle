@@ -48,9 +48,14 @@ Example workflow definition:
     Also, if you have enabled 'debug' level logging for Symfony, you will find that any time an eZPublish signal is
     emitted, the workflow engine add to the log 1 or 2 lines with information about its actions.
 
-7. set up a cron job that will clean up the workflow table in the database by executing, fe. daily, the following:
+7. set up a cron job that will pick up and restart any suspended workflow by executing, fe. every 5 minutes, the following:
+ 
+        php ezpublish/console kaliop:workflows:resume -n
+
+8. set up a cron job that will clean up the workflow table in the database by executing, fe. daily, the following:
  
         php ezpublish/console kaliop:workflows:cleanup
+
 
 
 ## Frequently asked questions
