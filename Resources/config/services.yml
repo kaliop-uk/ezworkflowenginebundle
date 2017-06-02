@@ -1,6 +1,8 @@
 parameters:
     ez_workflowengine_bundle.table_name: 'kaliop_workflows'
     ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
+    # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
+    ez_workflowengine_bundle.enable_debug_output: true
 
     ez_workflowengine_bundle.workflow_service.facade.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
     ez_workflowengine_bundle.workflow_service.inner.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceInner
@@ -16,6 +18,8 @@ parameters:
 
     ez_workflowengine_bundle.slot.workflowtrigger.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
 
+    ez_workflowengine_bundle.step_executed_listener.tracing.class: Kaliop\eZWorkflowEngineBundle\Core\EventListener\TracingStepExecutedListener
+
 services:
 
     ez_workflowengine_bundle.workflow_service:
@@ -28,6 +32,8 @@ services:
             - '%kernel.cache_dir%/ezworkflowdefinitions'
             - '%kernel.debug%'
             - '@?logger'
+        tags:
+            - { name: monolog.logger, channel: ez_workflow }
 
     ez_workflowengine_bundle.workflow_service.inner:
         class: '%ez_workflowengine_bundle.workflow_service.inner.class%'
@@ -98,3 +104,17 @@ services:
             - '@ez_workflowengine_bundle.workflow_service'
         tags:
             - { name: ezpublish.api.slot, signal: '*' }
+
+    ### misc
+
+    # This service is used for the verbose mode when triggering on the command line
+    ez_workflowengine_bundle.step_executed_listener.tracing:
+        class: '%ez_workflowengine_bundle.step_executed_listener.tracing.class%'
+        arguments:
+            - '%ez_workflowengine_bundle.enable_debug_output%'
+            - '@?logger'
+        tags:
+            - { name: kernel.event_listener, event: ez_workflow.step_executed, method: onStepExecuted }
+            - { name: kernel.event_listener, event: ez_workflow.workflow_aborted, method: onMigrationAborted }
+            - { name: kernel.event_listener, event: ez_workflow.workflow_suspended, method: onMigrationSuspended }
+            - { name: monolog.logger, channel: ez_workflow }

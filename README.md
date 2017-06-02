@@ -85,20 +85,33 @@ Q: are there steps which are specific to workflows, besides those found in the m
 
 A: yes. Take a look at [the docs](Resources/config/doc/DSL/Workflow.yml)
 
+Q: how can I troubleshoot workflows?
+
+A: by default workflow execution steps and triggers are logged in detail as part of the Symfony log, at DEBUG level.
+     If you want to have a separate log file dedicated to troubleshoot only workflow events, you can add to your config.yml
+     something similar to fe.
+
+        monolog:
+            handlers:
+                workflow_log:
+                    type: stream
+                    path: "%kernel.logs_dir%/%kernel.environment%.workflow.log"
+                    level: debug
+                    channels: [ ez_workflow ]
+
 Q: can I suspend a workflow and restart it later?
 
 A: yes, just as you would with a migration (see the doc in the migrationbundle for details).
     NB: when a workflow is restarted, all the reference values that it had originally will be restored, however it might
-    be that the contents that they refer to might have changed in the meantime.
+    be that the contents that they refer to have changed in the meantime.
 
 Q: does the workflow engine emit Symfony Events when workflows are run?
 
 A: yes. Currently the following events are emitted:
     * ez_workflow.before_execution
     * ez_workflow.step_executed
-    * ez_workflow.migration_aborted
-    * ez_workflow.migration_suspended
-    Note: these events are not considered final and might change in the future
+    * ez_workflow.workflow_aborted
+    * ez_workflow.workflow_suspended
 
 Q: can the workflow engine be used for scenarios where user interaction is required (eg. Content Approval ?)
 

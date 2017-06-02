@@ -11,6 +11,7 @@ use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 class WorkflowServiceInner extends MigrationService implements PrefixBasedResolverInterface
 {
     protected $eventPrefix = 'ez_workflow.';
+    protected $eventEntity = 'workflow';
     protected $referenceRegexp = '/^workflow:/';
     protected $currentWorkflowName;
 
