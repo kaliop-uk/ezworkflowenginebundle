@@ -11,7 +11,7 @@ use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 /**
  * Command to display the defined workflow definitions.
  */
-class ListCommand extends AbstractCommand
+class DebugCommand extends AbstractCommand
 {
     protected function configure()
     {

@@ -16,7 +16,9 @@ class CleanupCommand extends AbstractCommand
     protected function configure()
     {
         $this->setName('kaliop:workflows:cleanup')
-            ->addOption('older-than', null, InputOption::VALUE_REQUIRED, "Only remove workflows which have finished since N minutes", 86400)
+            ->addOption('older-than', 'o', InputOption::VALUE_REQUIRED, "Only remove workflows which have finished since N minutes", 86400)
+            ->addOption('failed', 'f',  InputOption::VALUE_NONE, "Remove failed instead of finished workflows")
+            ->addOption('dry-run', 'd', InputOption::VALUE_NONE, "Only list workflows to remove, without actually doing it")
             ->setDescription('Removes old workflows from the list of executed ones')
         ;
     }
@@ -33,7 +35,14 @@ class CleanupCommand extends AbstractCommand
         $toRemove = array();
         $total = 0;
         do {
-            $workflows = $workflowService->getMigrationsByStatus(Migration::STATUS_DONE, $limit, $offset);
+            $status = Migration::STATUS_DONE;
+            $label = 'executed';
+            if ($input->getOption('failed')) {
+                $status = $status = Migration::STATUS_FAILED;
+                $label = 'failed';
+            }
+
+            $workflows = $workflowService->getWorkflowsByStatus($status, $limit, $offset);
 
             if (!count($workflows)) {
                 break;
@@ -49,10 +58,16 @@ class CleanupCommand extends AbstractCommand
             $offset += $limit;
         } while(true);
 
-        foreach ($toRemove as $workflow) {
-            $workflowService->deleteMigration($workflow);
+        if ($input->getOption('dry-run')) {
+            $action = "To remove: ";
+
+        } else {
+            $action = "Removed ";
+            foreach ($toRemove as $workflow) {
+                $workflowService->deleteMigration($workflow);
+            }
         }
 
-        $output->writeln("Removed " . count($toRemove) . " workflows out of $total executed");
+        $output->writeln($action . count($toRemove) . " workflows out of $total $label");
     }
 }

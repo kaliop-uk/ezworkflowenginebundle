@@ -51,7 +51,7 @@ EOT
 
         $this->getContainer()->get('ez_migration_bundle.step_executed_listener.tracing')->setOutput($output);
 
-        $workflowService = $this->getContainer()->get('ez_workflowengine_bundle.workflow_service');
+        $workflowService = $this->getWorkflowService();
 
         $workflowName = $input->getOption('workflow');
         if ($workflowName != null) {
