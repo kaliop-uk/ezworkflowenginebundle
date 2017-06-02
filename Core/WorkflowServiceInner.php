@@ -109,13 +109,14 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
     protected function executeMigrationInner(Migration $migration, MigrationDefinition $migrationDefinition,
         $migrationContext, $stepOffset = 0, $useTransaction = true, $adminLogin = null)
     {
+        $previousWorkflowName = $this->currentWorkflowName;
         $this->currentWorkflowName = $migration->name;
         try {
             parent::executeMigrationInner($migration, $migrationDefinition, $migrationContext, $stepOffset,
                 $useTransaction, $adminLogin);
-            $this->currentWorkflowName = null;
+            $this->currentWorkflowName = $previousWorkflowName;
         } catch (\Exception $e) {
-            $this->currentWorkflowName = null;
+            $this->currentWorkflowName = $previousWorkflowName;
             throw $e;
         }
     }
