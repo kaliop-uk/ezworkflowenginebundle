@@ -3,6 +3,8 @@ parameters:
     ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
     # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
     ez_workflowengine_bundle.enable_debug_output: true
+    # Abort execution when workflows triggered in cascade reach this limit
+    ez_workflowengine_bundle.recursion_limit: 100
 
     ez_workflowengine_bundle.workflow_service.facade.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
     ez_workflowengine_bundle.workflow_service.inner.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceInner
@@ -29,6 +31,7 @@ services:
         class: '%ez_workflowengine_bundle.workflow_service.facade.class%'
         arguments:
             - '@ez_workflowengine_bundle.workflow_service.inner'
+            - '%ez_workflowengine_bundle.recursion_limit%'
             - '%kernel.cache_dir%/ezworkflowdefinitions'
             - '%kernel.debug%'
             - '@?logger'

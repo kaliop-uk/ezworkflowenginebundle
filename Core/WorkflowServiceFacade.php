@@ -21,12 +21,14 @@ class WorkflowServiceFacade
     protected $cacheDir;
     protected $debugMode;
     protected $logger;
-
+    protected $recursionLimit;
     protected static $workflowExecuting = 0;
 
-    public function __construct(MigrationService $innerService, $cacheDir, $debugMode = false, LoggerInterface $logger = null)
+    public function __construct(MigrationService $innerService, $recursionLimit, $cacheDir, $debugMode = false,
+        LoggerInterface $logger = null)
     {
         $this->innerService = $innerService;
+        $this->recursionLimit = $recursionLimit;
         $this->cacheDir = $cacheDir;
         $this->debugMode = $debugMode;
         $this->logger = $logger;
@@ -59,6 +61,10 @@ class WorkflowServiceFacade
                 if (self::$workflowExecuting > 0 && $workflowDefinition->avoidRecursion) {
                     if ($this->logger) $this->logger->debug("Skipping workflow '{$workflowDefinition->name}' to avoid recursion (workflow already executing)");
                     return;
+                }
+
+                if (self::$workflowExecuting >= $this->recursionLimit) {
+                    throw new \Exception("Workflow execution halted as we reached {$this->recursionLimit} nested workflows");
                 }
 
                 $wfd = new WorkflowDefinition(
