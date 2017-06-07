@@ -38,7 +38,8 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
     public function execute( $process, $event )
     {
         $parameters = $process->attribute( 'parameter_list' );
-        $triggerName = reset( explode( '_', $parameters['trigger_name'], 2 ) );
+        $tmp = explode( '_', $parameters['trigger_name'], 2 );
+        $triggerName = reset( $tmp );
         $operationName = $parameters['module_name'] . '_' . $parameters['module_function'];
 
         $signalName = $this->getsignalName( $triggerName, $operationName );
