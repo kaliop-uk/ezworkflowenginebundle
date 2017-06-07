@@ -4,11 +4,12 @@ namespace Kaliop\eZWorkflowEngineBundle\Core;
 
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\API\EnumerableReferenceResolverInterface;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\Core\ReferenceResolver\PrefixBasedResolverInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
-class WorkflowServiceInner extends MigrationService implements PrefixBasedResolverInterface
+class WorkflowServiceInner extends MigrationService implements PrefixBasedResolverInterface, EnumerableReferenceResolverInterface
 {
     protected $eventPrefix = 'ez_workflow.';
     protected $eventEntity = 'workflow';
@@ -219,5 +220,15 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
             return $this->getReferenceValue($stringIdentifier);
         }
         return $stringIdentifier;
+    }
+
+    public function listReferences()
+    {
+        $context = $this->getCurrentContext($this->currentWorkflowName);
+        if (!is_array($context) || !isset($context['context']['workflow']) || !is_array($context['context']['workflow'])) {
+            throw new \Exception('Can not resolve reference to a workflow parameter as workflow context is missing');
+        }
+
+        return $context['context']['workflow'];
     }
 }
