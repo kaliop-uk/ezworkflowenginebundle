@@ -158,7 +158,7 @@ class eZWorkflowEngineHookType extends eZWorkflowEventType
 
             case 'content_move':
                 return array( array(
-                    'locationId' => $parameters['node_id'],
+                    'subtreeId' => $parameters['node_id'],
                     'newParentLocationId' => $parameters['new_parent_node_id'],
                 ) );
 
