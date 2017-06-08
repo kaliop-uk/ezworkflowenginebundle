@@ -1,0 +1,80 @@
+# This workflow is designed to demo the capability of using http calls to external systems to alter cms contents.
+#
+# When a content is published of type 'comment', and the 'body' field has been left void, fill it with 'lore ipsum' text
+
+# hook up to post-publication
+-
+    type: workflow
+    signal: ContentService\PublishVersionSignal
+    avoid_recursion: true
+
+# load the content to be able to set a reference to its class
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: content_type_fc
+            attribute: content_type_identifier
+
+# cancel the workflow if the content is not of the desired type
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "reference:content_type_fc":
+            eq: "comment"
+
+# set references to the content fields
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: comment_message
+            attribute: attributes.message
+
+# help with debugging: dump current references to a file for inspection
+-
+    # Save the complete set of references currently defined to a json or yaml file
+    type: reference
+    mode: save
+    file: "./refs.json"
+    overwrite: true
+
+# cancel the workflow if the body field is not null
+-
+    type: workflow
+    mode: cancel
+    unless:
+        and:
+            -
+                "reference:content_type_fc":
+                    eq: "comment"
+            -
+                "reference:comment_message":
+                    eq: null
+
+# get a bunch of lorem ipsum text to be used to fill in the body
+-
+    type: http
+    mode: call
+    client: acme
+    uri: "http://loripsum.net/api/3/plaintext"
+    references:
+        -
+            attribute: body
+            identifier: lipsum_text
+
+# and set it into the comment by republishing it
+-
+    type: content
+    mode: update
+    match:
+        content_id: workflow:signal:content_id
+    attributes:
+        message: "reference:lipsum_text"

@@ -1,0 +1,79 @@
+# This workflow is designed to fill in automatically a 'screenshot' image when editors publish video files.
+#
+# It expects the 'video' content class to have 3 attributes:
+# - 'file': the video file itself (type: media)
+# - 'screenshot': the field that will hold the screenshot (type: image)
+# - 'screenshot_frame': an integer field, used to specify the time in the video at which the screenshot is taken (type: integer)
+
+# hook up to post-publication
+-
+    type: workflow
+    signal: ContentService\PublishVersionSignal
+    avoid_recursion: true
+
+# load the content to be able to set a reference to its class
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: content_type_as
+            attribute: content_type_identifier
+
+# unless content type is video, stop here
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "reference:content_type_as":
+            eq: "video"
+
+# set references to the video-specific fields
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: video_path
+            attribute: attributes.file.path
+        -
+            identifier: screenshot_path
+            attribute: attributes.screenshot.path
+        -
+            identifier: screenshot_frame
+            attribute: attributes.screenshot_frame
+
+# cancel the workflow if the screenshot field has been filled in already
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "reference:screenshot_frame":
+            ne: null
+
+# run 'avconv' to generate the screenshot (avconv is a fork of ffmpeg, available by default on debian 8)
+-
+    type: process
+    mode: run
+    command: avconv
+    arguments:
+        - '-i'
+        - 'reference:video_path'
+        - '-y'
+        - '-ss'
+        - 'reference:screenshot_frame'
+        - '/tmp/test.jpg'
+
+# upload the generated file to the screenshot field and re-publish the content
+-
+    type: content
+    mode: update
+    match:
+        content_id: workflow:signal:content_id
+    attributes:
+        screenshot:
+            path: "/tmp/test.jpg"
