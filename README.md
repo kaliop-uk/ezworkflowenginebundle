@@ -20,6 +20,14 @@ Example workflow definition:
         match:
             content_id: workflow:signal:content_id
 
+In plain words, this means: when any content is hidden, set its 'remote_id' value to 'pippo'.
+
+More examples of how "real-life" workflows do look like:
+
+* [Add a screenshot automatically when a video file is uploaded](Resources/config/doc/DSL/Examples/AddScreenshot.yaml)
+* [Fill contents with 'lorem ipsum' text using an online service](Resources/config/doc/DSL/Examples/FillComments.yaml)
+* [Fire a mail alert if an editor moves content that he's not supposed to alter](Resources/config/doc/DSL/Examples/MailOnMove.yaml)
+
 
 ## Getting started
 
