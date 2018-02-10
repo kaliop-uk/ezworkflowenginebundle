@@ -24,9 +24,9 @@ In plain words, this means: when any content is hidden, set its 'remote_id' valu
 
 More examples of how "real-life" workflows do look like:
 
-* [Add a screenshot automatically when a video file is uploaded](Resources/config/doc/Examples/AddScreenshot.yaml)
-* [Fill contents with 'lorem ipsum' text using an online service](Resources/config/doc/Examples/FillComments.yaml)
-* [Fire a mail alert if an editor moves content that he's not supposed to alter](Resources/config/doc/Examples/MailOnMove.yaml)
+* [Add a screenshot automatically when a video file is uploaded](Resources/doc/Examples/AddScreenshot.yaml)
+* [Fill contents with 'lorem ipsum' text using an online service](Resources/doc/Examples/FillComments.yaml)
+* [Fire a mail alert if an editor moves content that he's not supposed to alter](Resources/doc/Examples/MailOnMove.yaml)
 
 
 ## Getting started
@@ -91,7 +91,7 @@ A: use a workflow/cancel step with an 'unless' condition
 
 Q: are there steps which are specific to workflows, besides those found in the migrations bundle?
 
-A: yes. Take a look at [the docs](Resources/config/doc/DSL/Workflow.yml)
+A: yes. Take a look at [the docs](Resources/doc/DSL/Workflow.yml)
 
 Q: how can I troubleshoot workflows?
 
