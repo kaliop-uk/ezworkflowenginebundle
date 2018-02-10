@@ -1,0 +1,5 @@
+<?php /*
+
+[ExtensionSettings]
+DesignExtensions[]=ezworkflowenginebridge
+

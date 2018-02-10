@@ -1,0 +1,38 @@
+# This workflow is designed to demo the capability of sending emails upon content changes.
+#
+# Goal: notify the editorial manager when someone moves any content to be positioned directly under the homepage
+
+# hook up the workflow to the trigger
+-
+    type: workflow
+    signal: LocationService\MoveSubtreeSignal
+    avoid_recursion: true
+    #run_as: admin
+
+# cancel the workflow unless the new location is the content root
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "workflow:signal:new_parent_location_id":
+            eq: "2"
+
+# load the content to be able to set a reference to its name
+-
+    type: content
+    mode: load
+    match:
+        location_id: workflow:signal:subtree_id
+    references:
+        -
+            identifier: content_name
+            attribute: name
+
+# send an email to a fixed recipient using information from the content for both subject and body
+-
+    type: mail
+    mode: send
+    from: ggiunta@kaliop.com
+    to: giunta.gaetano@gmail.com
+    subject: "Content '[reference:content_name]' has been moved to root location!"
+    body: "It was done by [workflow:original_user]"

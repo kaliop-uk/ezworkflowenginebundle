@@ -1,0 +1,61 @@
+# This workflow is designed to implement the classic 'keep content hidden until desired date' pattern.
+#
+# It works for contents of type 'article'. It expects the article content type to have a 'publish_date' field
+
+# hook up to post-publication
+-
+    type: workflow
+    signal: ContentService\PublishVersionSignal
+    avoid_recursion: true
+
+# load the content to be able to set a reference to its class
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: content_type
+            attribute: content_type_identifier
+
+# cancel the workflow if the content is not of the desired type
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "reference:content_type":
+            eq: "article"
+
+# hide the content by default (nb: all its locations)
+-
+    type: location
+    mode: update
+    is_hidden: true
+    match:
+        content_id: workflow:signal:content_id
+
+# suspend the workflow until the desired date. When the 'resume' cli command is run, the workflow will restart from here
+-
+    type: workflow
+    mode: suspend
+    load:
+        # make sure that we check the current date against the desired date as currently set.
+        # This is needed for the case where someone has changed the publication-date while this workflow was suspended
+        type: content
+        match:
+            content_id: workflow:signal:content_id
+        references:
+            -
+                identifier: content_type
+                attribute: attributes.publish_date
+    until:
+        date: reference:content_type
+
+# once the desired time has arrived, display the content  (nb: all its locations)
+-
+    type: location
+    mode: update
+    is_hidden: false
+    match:
+        content_id: workflow:signal:content_id

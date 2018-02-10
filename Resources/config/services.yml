@@ -1,3 +1,118 @@
 parameters:
+    ez_workflowengine_bundle.table_name: 'kaliop_workflows'
+    ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
+    # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
+    ez_workflowengine_bundle.enable_debug_output: true
+    # Abort execution when workflows triggered in cascade reach this limit
+    ez_workflowengine_bundle.recursion_limit: 100
+
+    ez_workflowengine_bundle.workflow_service.facade.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
+    ez_workflowengine_bundle.workflow_service.inner.class: Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceInner
+
+    ez_workflowengine_bundle.loader.filesystem.class: Kaliop\eZWorkflowEngineBundle\Core\Loader\Filesystem
+
+    ez_workflowengine_bundle.definition_parser.yaml.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\YamlDefinitionParser
+    ez_workflowengine_bundle.definition_parser.json.class: Kaliop\eZWorkflowEngineBundle\Core\DefinitionParser\JsonDefinitionParser
+
+    ez_workflowengine_bundle.executor.workflow.class: Kaliop\eZWorkflowEngineBundle\Core\Executor\WorkflowExecutor
+
+    ez_workflowengine_bundle.storage_handler.database.class: Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database\Workflow
+
+    ez_workflowengine_bundle.slot.workflowtrigger.class: Kaliop\eZWorkflowEngineBundle\Core\Slot\WorkflowTrigger
+
+    ez_workflowengine_bundle.step_executed_listener.tracing.class: Kaliop\eZWorkflowEngineBundle\Core\EventListener\TracingStepExecutedListener
 
 services:
+
+    ez_workflowengine_bundle.workflow_service:
+        alias: ez_workflowengine_bundle.workflow_service.facade
+
+    ez_workflowengine_bundle.workflow_service.facade:
+        class: '%ez_workflowengine_bundle.workflow_service.facade.class%'
+        arguments:
+            - '@ez_workflowengine_bundle.workflow_service.inner'
+            - '%ez_workflowengine_bundle.recursion_limit%'
+            - '%kernel.cache_dir%/ezworkflowdefinitions'
+            - '%kernel.debug%'
+            - '@?logger'
+        tags:
+            - { name: monolog.logger, channel: ez_workflow }
+
+    ez_workflowengine_bundle.workflow_service.inner:
+        class: '%ez_workflowengine_bundle.workflow_service.inner.class%'
+        arguments:
+            - '@ez_workflowengine_bundle.loader'
+            - '@ez_workflowengine_bundle.storage_handler'
+            - '@ezpublish.api.repository'
+            - '@event_dispatcher'
+            - '@ez_migration_bundle.context_handler'
+        tags:
+            - { name: ez_migration_bundle.context_provider, label: workflow_service }
+            - { name: ez_migration_bundle.reference_resolver.customreference }
+
+    ### loaders
+
+    ez_workflowengine_bundle.loader:
+        alias: ez_workflowengine_bundle.loader.filesystem
+
+    ez_workflowengine_bundle.loader.filesystem:
+        class: '%ez_workflowengine_bundle.loader.filesystem.class%'
+        arguments:
+            - '@kernel'
+            - '%ez_workflowengine_bundle.workflow_directory%'
+
+    ### parsers
+
+    ez_workflowengine_bundle.definition_parser.yaml:
+        class: '%ez_workflowengine_bundle.definition_parser.yaml.class%'
+        arguments: []
+        tags:
+            - { name: ez_workflowengine_bundle.definition_parser }
+
+    ez_workflowengine_bundle.definition_parser.json:
+        class: '%ez_workflowengine_bundle.definition_parser.json.class%'
+        arguments: []
+        tags:
+            - { name: ez_workflowengine_bundle.definition_parser }
+
+    ### executors
+
+    ez_workflowengine_bundle.executor.workflow:
+        class: '%ez_workflowengine_bundle.executor.workflow.class%'
+        parent: ez_migration_bundle.executor.migration
+        tags:
+            - { name: ez_migration_bundle.executor }
+
+    ### storage handlers
+
+    ez_workflowengine_bundle.storage_handler:
+        alias: ez_workflowengine_bundle.storage_handler.database
+
+    ez_workflowengine_bundle.storage_handler.database:
+        class: '%ez_workflowengine_bundle.storage_handler.database.class%'
+        arguments:
+            - '@ezpublish.connection'
+            - '%ez_workflowengine_bundle.table_name%'
+
+    ### slots
+
+    ez_workflowengine_bundle.slot.workflowtrigger:
+        class: %ez_workflowengine_bundle.slot.workflowtrigger.class%
+        arguments:
+            - '@ez_workflowengine_bundle.workflow_service'
+        tags:
+            - { name: ezpublish.api.slot, signal: '*' }
+
+    ### misc
+
+    # This service is used for the verbose mode when triggering on the command line, as well as plain logging
+    ez_workflowengine_bundle.step_executed_listener.tracing:
+        class: '%ez_workflowengine_bundle.step_executed_listener.tracing.class%'
+        arguments:
+            - '%ez_workflowengine_bundle.enable_debug_output%'
+            - '@?logger'
+        tags:
+            - { name: kernel.event_listener, event: ez_workflow.step_executed, method: onStepExecuted }
+            - { name: kernel.event_listener, event: ez_workflow.workflow_aborted, method: onMigrationAborted }
+            - { name: kernel.event_listener, event: ez_workflow.workflow_suspended, method: onMigrationSuspended }
+            - { name: monolog.logger, channel: ez_workflow }
