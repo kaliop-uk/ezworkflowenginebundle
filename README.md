@@ -144,7 +144,7 @@ A: this makes it much easier to have consistent workflows definitions across dev
 By default, editing actions carried out in the Legacy Administration Interface do not trigger execution of the workflows
 defined in your yml files.
 It is however possible to do so, with just a little bit of configuration work:
-- enable the extension `zworkflowenginebridge` in settings.ini.override.php
+- enable the extension `ezworkflowenginebridge` in settings.ini.override.php
 - clear caches
 - in the Administration Interface, create custom Legacy Workflows and hook them up to Triggers as per the documentation
      that you will find in the [readme](ezpublish_legacy/ezworkflowenginebridge/README.md)
