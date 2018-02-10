@@ -64,6 +64,7 @@ More examples of how "real-life" workflows do look like:
  
         php ezpublish/console kaliop:workflows:cleanup
 
+9. once your workflow is debugged and tested, don't forget to commit the workflow definition file as part of your source code ;-) 
 
 
 ## Frequently asked questions
