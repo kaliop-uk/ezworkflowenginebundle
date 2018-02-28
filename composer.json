@@ -1,5 +1,5 @@
 {
-    "name": "kaliop/ezworkflowenginebundle",
+    "name": "mediatacom/ezworkflowenginebundle",
     "type": "symfony-bundle",
     "description": "Kaliop eZ-Workflow-Engine Bundle",
     "keywords": ["workflow", "ezpublish"],
