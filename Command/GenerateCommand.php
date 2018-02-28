@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use eZ\Publish\Core\MVC\ConfigResolverInterface;
 
 class GenerateCommand extends AbstractCommand
 {
@@ -14,6 +15,16 @@ class GenerateCommand extends AbstractCommand
 
     private $availableWorkflowFormats = array('yml', 'json');
     private $thisBundle = 'EzWorkflowEngineBundle';
+
+    /** @var \eZ\Publish\Core\MVC\ConfigResolverInterface */
+    protected $configResolver;
+
+    #public function __construct(KernelInterface $kernel, $versionDirectory = 'Workflows')
+    public function __construct(ConfigResolverInterface $configResolver)
+    {
+        #$this->versionDirectory = $versionDirectory;
+        $this->configResolver = $configResolver;
+    }
 
     /**
      * Configure the console command
@@ -142,7 +153,8 @@ EOT
         }
 
         $bundle = $this->getApplication()->getKernel()->getBundle($bundleName);
-        $workflowDirectory = $bundle->getPath() . '/' . $this->getContainer()->getParameter('ez_workflowengine_bundle.workflow_directory');
+        #$workflowDirectory = $bundle->getPath() . '/' . $this->getContainer()->getParameter('ez_workflowengine_bundle.workflow_directory');
+        $workflowDirectory = $bundle->getPath() . '/' .  $this->configResolver->getParameter('workflow_directory','ez_workflowengine_bundle');
 
         return $workflowDirectory;
     }
