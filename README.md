@@ -31,7 +31,9 @@ More examples of how "real-life" workflows do look like:
 
 ## Getting started
 
-1. Install the bundle using composer, enable `EzWorkflowEngineBundle` in your application Kernel
+1. Install the bundle using composer, enable `EzWorkflowEngineBundle` in your application Kernel (if you had not previously
+    installed the eZMigrationBundle, you should enable as well `EzMigrationBundle` - composer will have downloaded it
+    automatically for you, but not enabled it)
 
 2. Create a workflow definition in any bundle you want by using the dedicated command
 
