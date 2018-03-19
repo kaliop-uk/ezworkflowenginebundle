@@ -141,6 +141,12 @@ Q: why are you storing the workflow definitions in configuration files instead o
 A: this makes it much easier to have consistent workflows definitions across development/test/production environments,
     as well as Continuous Integration scenarios
 
+Q: are workflow definitions cached ?
+
+A: yes. For speed of execution, the bundle caches the parsed workflow definitions attached to each signal.
+    This means that, if you are running Symfony in non-dev mode, you will have to clear the Symfony cache each time that
+    you modify the definition of an existing workflow or add/remove workflows (using f.e. the `cache:clear` command)     
+
 
 ## Integration with the Legacy Administration Interface
 
