@@ -5,13 +5,20 @@ namespace Kaliop\eZWorkflowEngineBundle\Core\Loader;
 use Kaliop\eZMigrationBundle\Core\Loader\Filesystem as BaseLoader;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 use Symfony\Component\HttpKernel\KernelInterface;
+use eZ\Publish\Core\MVC\ConfigResolverInterface;
 
 class Filesystem extends BaseLoader
 {
-    public function __construct(KernelInterface $kernel, $versionDirectory = 'Workflows')
+
+    /** @var \eZ\Publish\Core\MVC\ConfigResolverInterface */
+    protected $configResolver;
+
+    #public function __construct(KernelInterface $kernel, $versionDirectory = 'Workflows')
+    public function __construct(KernelInterface $kernel, ConfigResolverInterface $configResolver)
     {
-        $this->versionDirectory = $versionDirectory;
         $this->kernel = $kernel;
+        #$this->versionDirectory = $versionDirectory;
+        $this->configResolver = $configResolver;
     }
 
     /**
@@ -22,13 +29,14 @@ class Filesystem extends BaseLoader
      */
     protected function getDefinitions(array $paths = array(), $returnFilename = false)
     {
+        $versionDirectory  = $this->configResolver->getParameter('workflow_directory','ez_workflowengine_bundle');
         // if no paths defined, we look in all bundles
         if (empty($paths)) {
             $paths = array();
             /** @var $bundle \Symfony\Component\HttpKernel\Bundle\BundleInterface */
             foreach ($this->kernel->getBundles() as $bundle)
             {
-                $path = $bundle->getPath() . "/" . $this->versionDirectory;
+                $path = $bundle->getPath() . "/" . $versionDirectory;
                 if (is_dir($path)) {
                     $paths[] = $path;
                 }

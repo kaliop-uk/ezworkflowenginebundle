@@ -1,0 +1,7 @@
+parameters:
+    #ez_workflowengine_bundle.default.table_name: 'kaliop_workflows'
+    ez_workflowengine_bundle.default.workflow_directory: 'WorkflowDefinitions'
+    # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
+    #ez_workflowengine_bundle.default.enable_debug_output: true
+    # Abort execution when workflows triggered in cascade reach this limit
+    #ez_workflowengine_bundle.default.recursion_limit: 100

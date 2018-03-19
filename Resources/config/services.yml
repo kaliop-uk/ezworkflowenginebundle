@@ -1,6 +1,6 @@
 parameters:
     ez_workflowengine_bundle.table_name: 'kaliop_workflows'
-    ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
+    #ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
     # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
     ez_workflowengine_bundle.enable_debug_output: true
     # Abort execution when workflows triggered in cascade reach this limit
@@ -22,8 +22,8 @@ parameters:
 
     ez_workflowengine_bundle.step_executed_listener.tracing.class: Kaliop\eZWorkflowEngineBundle\Core\EventListener\TracingStepExecutedListener
 
-services:
 
+services:
     ez_workflowengine_bundle.workflow_service:
         alias: ez_workflowengine_bundle.workflow_service.facade
 
@@ -32,6 +32,7 @@ services:
         arguments:
             - '@ez_workflowengine_bundle.workflow_service.inner'
             - '%ez_workflowengine_bundle.recursion_limit%'
+            #- '@ezpublish.config.resolver'
             - '%kernel.cache_dir%/ezworkflowdefinitions'
             - '%kernel.debug%'
             - '@?logger'
@@ -59,7 +60,8 @@ services:
         class: '%ez_workflowengine_bundle.loader.filesystem.class%'
         arguments:
             - '@kernel'
-            - '%ez_workflowengine_bundle.workflow_directory%'
+            #- '%ez_workflowengine_bundle.workflow_directory%'
+            - '@ezpublish.config.resolver'
 
     ### parsers
 
@@ -93,6 +95,7 @@ services:
         arguments:
             - '@ezpublish.connection'
             - '%ez_workflowengine_bundle.table_name%'
+            #- '@ezpublish.config.resolver'
 
     ### slots
 
