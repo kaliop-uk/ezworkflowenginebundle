@@ -4,13 +4,14 @@ namespace Kaliop\eZWorkflowEngineBundle\Core\Loader;
 
 use Kaliop\eZMigrationBundle\Core\Loader\Filesystem as BaseLoader;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
+use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class Filesystem extends BaseLoader
 {
-    public function __construct(KernelInterface $kernel, $versionDirectory = 'Workflows')
+    public function __construct(KernelInterface $kernel, $versionDirectoryParameter = 'Workflows', ConfigResolverInterface $configResolver = null)
     {
-        $this->versionDirectory = $versionDirectory;
+        $this->versionDirectory = $configResolver ? $configResolver->getParameter($versionDirectoryParameter) : $versionDirectoryParameter;
         $this->kernel = $kernel;
     }
 

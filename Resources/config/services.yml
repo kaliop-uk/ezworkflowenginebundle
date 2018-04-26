@@ -1,6 +1,11 @@
 parameters:
+    # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
+    #     ez_workflowengine_bundle.<siteaccess_group>.table_name
     ez_workflowengine_bundle.table_name: 'kaliop_workflows'
+    # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
+    #     ez_workflowengine_bundle.<siteaccess_group>.workflow_directory
     ez_workflowengine_bundle.workflow_directory: 'WorkflowDefinitions'
+
     # Set to false to disable completely the debug log of executed migration steps (also echoed to cli in verbose mode)
     ez_workflowengine_bundle.enable_debug_output: true
     # Abort execution when workflows triggered in cascade reach this limit
@@ -59,7 +64,8 @@ services:
         class: '%ez_workflowengine_bundle.loader.filesystem.class%'
         arguments:
             - '@kernel'
-            - '%ez_workflowengine_bundle.workflow_directory%'
+            - 'ez_workflowengine_bundle.workflow_directory'
+            - '@ez_migration_bundle.helper.config.resolver'
 
     ### parsers
 
@@ -92,7 +98,8 @@ services:
         class: '%ez_workflowengine_bundle.storage_handler.database.class%'
         arguments:
             - '@ezpublish.connection'
-            - '%ez_workflowengine_bundle.table_name%'
+            - 'ez_workflowengine_bundle.table_name'
+            - '@ez_migration_bundle.helper.config.resolver'
 
     ### slots
 

@@ -142,7 +142,7 @@ EOT
         }
 
         $bundle = $this->getApplication()->getKernel()->getBundle($bundleName);
-        $workflowDirectory = $bundle->getPath() . '/' . $this->getContainer()->getParameter('ez_workflowengine_bundle.workflow_directory');
+        $workflowDirectory = $bundle->getPath() . '/' . $this->getContainer()->get('ez_migration_bundle.helper.config.resolver')->getParameter('ez_workflowengine_bundle.workflow_directory');
 
         return $workflowDirectory;
     }
