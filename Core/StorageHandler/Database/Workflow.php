@@ -7,6 +7,7 @@ use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\Workflow as APIWorkflow;
+use eZ\Publish\Core\Persistence\Database\DatabaseHandler;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Schema;
 
