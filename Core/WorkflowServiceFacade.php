@@ -10,6 +10,7 @@ use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
+use Kaliop\eZMigrationBundle\API\ExecutorInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 /**
@@ -167,5 +168,11 @@ class WorkflowServiceFacade
     {
         $name = str_replace('Workflow', 'Migration', $name);
         return call_user_func_array(array($this->innerService, $name), $arguments);
+    }
+
+    // try to keep all Sf versions happy: some do apparently complain if this method is only available via __call
+    public function addExecutor(ExecutorInterface $executor)
+    {
+        return $this->innerService->addExecutor($executor);
     }
 }
