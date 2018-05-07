@@ -10,7 +10,7 @@ use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
-use Kaliop\eZMigrationBundle\API\ExecutorInterface;
+use Kaliop\eZMigrationBundle\API\DefinitionParserInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 /**
@@ -171,8 +171,8 @@ class WorkflowServiceFacade
     }
 
     // try to keep all Sf versions happy: some do apparently complain if this method is only available via __call
-    public function addExecutor(ExecutorInterface $executor)
+    public function addDefinitionParser(DefinitionParserInterface $executor)
     {
-        return $this->innerService->addExecutor($executor);
+        return $this->innerService->addDefinitionParser($executor);
     }
 }
