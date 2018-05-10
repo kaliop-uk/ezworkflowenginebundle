@@ -162,3 +162,5 @@ It is however possible to do so, with just a little bit of configuration work:
 [![License](https://poser.pugx.org/kaliop/ezworkflowenginebundle/license)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 [![Latest Stable Version](https://poser.pugx.org/kaliop/ezworkflowenginebundle/v/stable)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 [![Total Downloads](https://poser.pugx.org/kaliop/ezworkflowenginebundle/downloads)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
+
+[![Build Status](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle.svg?branch=master)](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle)
