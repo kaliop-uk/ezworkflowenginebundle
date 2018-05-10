@@ -9,7 +9,7 @@ use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
 use Kaliop\eZMigrationBundle\API\DefinitionParserInterface;
-use Kaliop\eZMigrationBundle\API\ExecutorInterface
+use Kaliop\eZMigrationBundle\API\ExecutorInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 /**
