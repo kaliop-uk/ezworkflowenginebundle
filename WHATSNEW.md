@@ -1,7 +1,7 @@
 Version 1.1.2
 =============
 
-* Fixed error with recent versions of Symfony
+* Fixed errors with recent versions of Symfony (3.0 and up)
 
 
 Version 1.1.1
