@@ -1,3 +1,9 @@
+Version 1.1.3
+=============
+
+* No changes, mark as compatibile with eZMigrationBundle 5.x
+
+
 Version 1.1.2
 =============
 
