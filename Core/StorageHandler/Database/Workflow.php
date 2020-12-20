@@ -153,6 +153,8 @@ class Workflow extends StorageMigration
         // and 767 bytes can be either 255 chars or 191 chars depending on charset utf8 or utf8mb4...
         //$t->addIndex(array('path'));
 
+        /// @todo add support for utf8mb4 charset
+
         foreach ($schema->toSql($dbPlatform) as $sql) {
             $this->dbHandler->exec($sql);
         }
