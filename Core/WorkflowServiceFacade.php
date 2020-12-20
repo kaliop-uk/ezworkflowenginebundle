@@ -5,11 +5,11 @@ namespace Kaliop\eZWorkflowEngineBundle\Core;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
 use Psr\Log\LoggerInterface;
-use eZ\Publish\API\Repository\Repository;
-use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
+use Kaliop\eZMigrationBundle\API\DefinitionParserInterface;
+use Kaliop\eZMigrationBundle\API\ExecutorInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
 
 /**
@@ -167,5 +167,17 @@ class WorkflowServiceFacade
     {
         $name = str_replace('Workflow', 'Migration', $name);
         return call_user_func_array(array($this->innerService, $name), $arguments);
+    }
+
+    // try to keep all Sf versions happy: some do apparently complain if this method is only available via __call
+    public function addDefinitionParser(DefinitionParserInterface $executor)
+    {
+        return $this->innerService->addDefinitionParser($executor);
+    }
+
+    // same
+    public function addExecutor(ExecutorInterface $executor)
+    {
+        return $this->innerService->addExecutor($executor);
     }
 }

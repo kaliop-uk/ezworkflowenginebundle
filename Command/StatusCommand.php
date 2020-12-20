@@ -5,8 +5,8 @@ namespace Kaliop\eZWorkflowEngineBundle\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Helper\Table;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
  * Command to display the defined workflows.
@@ -108,10 +108,11 @@ class StatusCommand extends AbstractCommand
         } else {
             $headers = array('#', 'Workflow', 'Signal', 'Status', 'Executed on', 'Notes');
         }
-        $table = $this->getHelperSet()->get('table');
+
+        $table = new Table($output);
         $table
             ->setHeaders($headers)
             ->setRows($data);
-        $table->render($output);
+        $table->render();
     }
 }

@@ -5,7 +5,9 @@ namespace Kaliop\eZWorkflowEngineBundle\Core\StorageHandler\Database;
 use Kaliop\eZMigrationBundle\Core\StorageHandler\Database\Migration as StorageMigration;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
 use Kaliop\eZWorkflowEngineBundle\API\Value\Workflow as APIWorkflow;
+use eZ\Publish\Core\Persistence\Database\DatabaseHandler;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Schema;
 
@@ -15,6 +17,17 @@ use Doctrine\DBAL\Schema\Schema;
 class Workflow extends StorageMigration
 {
     protected $fieldList = 'migration, md5, path, execution_date, status, execution_error, signal_name';
+
+    /**
+     * @param DatabaseHandler $dbHandler
+     * @param string $tableNameParameter
+     * @param ConfigResolverInterface $configResolver
+     * @throws \Exception
+     */
+    public function __construct(DatabaseHandler $dbHandler, $tableNameParameter = 'kaliop_workflows', ConfigResolverInterface $configResolver = null)
+    {
+        parent::__construct($dbHandler, $tableNameParameter, $configResolver);
+    }
 
     /**
      * @param MigrationDefinition $migrationDefinition

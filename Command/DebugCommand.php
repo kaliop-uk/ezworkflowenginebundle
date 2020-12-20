@@ -5,7 +5,7 @@ namespace Kaliop\eZWorkflowEngineBundle\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Symfony\Component\Console\Helper\Table;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
@@ -54,10 +54,10 @@ class DebugCommand extends AbstractCommand
 
         }
 
-        $table = $this->getHelperSet()->get('table');
+        $table = new Table($output);
         $table
             ->setHeaders(array('#', 'Workflow definition', 'Signal', 'Switch user', 'Use transaction', /*'Path',*/ 'Notes'))
             ->setRows($data);
-        $table->render($output);
+        $table->render();
     }
 }
