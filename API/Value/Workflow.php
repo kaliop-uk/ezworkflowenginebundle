@@ -4,6 +4,9 @@ namespace Kaliop\eZWorkflowEngineBundle\API\Value;
 
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 
+/**
+ * @property-read string $signalName
+ */
 class Workflow extends Migration
 {
     protected $signalName;
