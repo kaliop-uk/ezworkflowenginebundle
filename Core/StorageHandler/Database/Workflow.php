@@ -39,7 +39,7 @@ class Workflow extends StorageMigration
         throw new \Exception("Can not add workflows to the database if not when starting them");
     }
 
-    protected function createMigration(MigrationDefinition $migrationDefinition, $status, $action)
+    protected function createMigration(MigrationDefinition $migrationDefinition, $status, $action, $force = false)
     {
         $this->createTableIfNeeded();
 

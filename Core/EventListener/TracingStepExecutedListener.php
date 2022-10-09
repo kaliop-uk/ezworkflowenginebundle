@@ -19,11 +19,12 @@ class TracingStepExecutedListener extends BaseListener
     /**
      * Unlike the parent class, we default to always writing to the log file and to the output only if available
      * @param string $out
+     * @param int|null $verbosity
      */
-    protected function echoMessage($out)
+    protected function echoMessage($out, $verbosity = null)
     {
         if ($this->output) {
-            if ($this->output->getVerbosity() >= $this->minVerbosityLevel) {
+            if ($this->output->getVerbosity() >= ($verbosity ? $verbosity : $this->minVerbosityLevel)) {
                 $this->output->writeln($out);
             }
         }
