@@ -78,7 +78,7 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
      *       Shall we use instead -1 to indicate the desire to not-login-as-admin-user-at-all ?
      */
     public function executeMigration(MigrationDefinition $migrationDefinition, $useTransaction = true,
-        $defaultLanguageCode = null, $adminLogin = null, $workflowParameters = null)
+        $defaultLanguageCode = null, $adminLogin = null, $force = false, $forceSigchildEnabled = null, $workflowParameters = null)
     {
         if ($migrationDefinition->status == MigrationDefinition::STATUS_TO_PARSE) {
             $migrationDefinition = $this->parseMigrationDefinition($migrationDefinition);
@@ -90,10 +90,10 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
         }
 
         /// @todo add support for setting in $migrationContext a userContentType ?
-        $migrationContext = $this->migrationContextFromParameters($defaultLanguageCode, $adminLogin, $workflowParameters);
+        $migrationContext = $this->migrationContextFromParameters($defaultLanguageCode, $adminLogin, $forceSigchildEnabled, $workflowParameters);
 
         // set migration as begun - has to be in own db transaction
-        $migration = $this->storageHandler->startMigration($migrationDefinition);
+        $migration = $this->storageHandler->startMigration($migrationDefinition, $force);
 
         $this->executeMigrationInner($migration, $migrationDefinition, $migrationContext, 0, $useTransaction, $adminLogin);
     }
@@ -131,9 +131,9 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
      * @param array $workflowParameters
      * @return array
      */
-    protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null, $workflowParameters = null)
+    protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null, $forceSigchildEnabled = null, $workflowParameters = null)
     {
-        $properties = parent::migrationContextFromParameters($defaultLanguageCode, $adminLogin);
+        $properties = parent::migrationContextFromParameters($defaultLanguageCode, $adminLogin, $forceSigchildEnabled);
 
         if (!is_array($workflowParameters)) {
             /// @todo log warning

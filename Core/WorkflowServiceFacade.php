@@ -86,7 +86,7 @@ class WorkflowServiceFacade
                     if ($this->logger) $this->logger->debug("Executing workflow '{$workflowDefinition->name}' with parameters: " . preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($workflowParameters, true))));
 
                     /// @todo allow setting of default lang ?
-                    $this->innerService->executeMigration($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs, $workflowParameters);
+                    $this->innerService->executeMigration($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs, false, null, $workflowParameters);
                     self::$workflowExecuting -= 1;
                 } catch (\Exception $e) {
                     self::$workflowExecuting -= 1;

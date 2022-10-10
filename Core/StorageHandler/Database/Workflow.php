@@ -39,6 +39,7 @@ class Workflow extends StorageMigration
         throw new \Exception("Can not add workflows to the database if not when starting them");
     }
 
+    /// @todo should we handle $force ? Or maybe throw if it is not false...
     protected function createMigration(MigrationDefinition $migrationDefinition, $status, $action, $force = false)
     {
         $this->createTableIfNeeded();

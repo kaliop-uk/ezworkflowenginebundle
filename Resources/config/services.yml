@@ -51,6 +51,7 @@ services:
             - '@ezpublish.api.repository'
             - '@event_dispatcher'
             - '@ez_migration_bundle.context_handler'
+            - '@ez_migration_bundle.reference_resolver.customreference'
         tags:
             - { name: ez_migration_bundle.context_provider, label: workflow_service }
             - { name: ez_migration_bundle.reference_resolver.customreference }
