@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Output\StreamOutput;
 
-abstract class BaseCommandTest extends WebTestCase
+abstract class CommandTestBase extends WebTestCase
 {
     protected $dslDir;
     protected $targetBundle = 'EzPublishCoreBundle'; // it is always present :-)
@@ -109,7 +109,7 @@ abstract class BaseCommandTest extends WebTestCase
 /// @todo check: can we leave this to the parent class from Symfony?
 if (method_exists(\ReflectionMethod::class, 'hasReturnType') && (new \ReflectionMethod(TestCase::class, 'tearDown'))->hasReturnType()) {
     // eval is required for php 5.6 compatibility
-    eval('abstract class CommandTest extends CommandTestBase
+    eval('class CommandTest extends CommandTestBase
     {
         protected function setUp(): void
         {
@@ -121,8 +121,8 @@ if (method_exists(\ReflectionMethod::class, 'hasReturnType') && (new \Reflection
             $this->doTearDown();
         }
     }');
-}else {
-    abstract class CommandTest extends CommandTestBase
+} else {
+    class CommandTest extends CommandTestBase
     {
         protected function setUp()
         {
