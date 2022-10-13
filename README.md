@@ -4,7 +4,7 @@ ezworkflowenginebundle
 A workflow engine for eZPublish5 / eZPlatform.
 
 
-## How it works, in 10 lines of configuration 
+## How it works, in 10 lines of configuration
 
 Example workflow definition:
 
@@ -59,14 +59,14 @@ More examples of how "real-life" workflows do look like:
     emitted, the workflow engine add to the log 1 or 2 lines with information about its actions.
 
 7. set up a cron job that will pick up and restart any suspended workflow by executing, fe. every 5 minutes, the following:
- 
+
         php ezpublish/console kaliop:workflows:resume -n
 
 8. set up a cron job that will clean up the workflow table in the database by executing, fe. daily, the following:
- 
+
         php ezpublish/console kaliop:workflows:cleanup
 
-9. once your workflow is debugged and tested, don't forget to commit the workflow definition file as part of your source code ;-) 
+9. once your workflow is debugged and tested, don't forget to commit the workflow definition file as part of your source code ;-)
 
 
 ## Frequently asked questions
@@ -77,8 +77,8 @@ A: the workflow engine makes available as references the parameters found in the
     Ex: `workflow:signal:content_id`.
     Once you have a content or location id, you can use the steps 'content/load' and 'location/load' to get hold of the
     whole thing, and set new references to its other attributes, eg:
-    
-        - 
+
+        -
             type: content
             mode: load
             match:
@@ -90,7 +90,7 @@ A: the workflow engine makes available as references the parameters found in the
 
 Q: how can I make a workflow act only on some specific content(s)?
 
-A: use a workflow/cancel step with an 'unless' condition 
+A: use a workflow/cancel step with an 'unless' condition
 
 Q: are there steps which are specific to workflows, besides those found in the migrations bundle?
 
@@ -145,7 +145,7 @@ Q: are workflow definitions cached ?
 
 A: yes. For speed of execution, the bundle caches the parsed workflow definitions attached to each signal.
     This means that, if you are running Symfony in non-dev mode, you will have to clear the Symfony cache each time that
-    you modify the definition of an existing workflow or add/remove workflows (using f.e. the `cache:clear` command)     
+    you modify the definition of an existing workflow or add/remove workflows (using f.e. the `cache:clear` command)
 
 
 ## Integration with the Legacy Administration Interface
@@ -163,5 +163,5 @@ It is however possible to do so, with just a little bit of configuration work:
 [![Latest Stable Version](https://poser.pugx.org/kaliop/ezworkflowenginebundle/v/stable)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 [![Total Downloads](https://poser.pugx.org/kaliop/ezworkflowenginebundle/downloads)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 
-[![Build Status](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle.svg?branch=master)](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/?branch=master)
+[![Build Status](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle.svg?branch=main)](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/?branch=main)
