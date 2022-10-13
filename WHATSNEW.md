@@ -3,6 +3,12 @@ Version 2.0 (unreleased)
 
 * Make compatible with eZMigrationBundle 5.13 and later
 
+* Move from `master` to `main` branch
+
+* Move from Travis to GitHub Actions for CI testing
+
+* Bump the version of phpunit used to run the tests from 4.x/5.x to 5.x/8.x
+
 
 Version 1.1.3
 =============

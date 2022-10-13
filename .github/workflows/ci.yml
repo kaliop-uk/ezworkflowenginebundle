@@ -1,0 +1,126 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+    test:
+        runs-on: ${{ matrix.operating-system }}
+        env:
+            SYMFONY_ENV: behat
+            DB_HOST: localhost
+            DB_TYPE: mysql
+            DB_ROOT_PASSWORD: root
+            DB_EZ_USER: ezp
+            DB_EZ_PASSWORD: ezp
+            DB_EZ_DATABASE: behattestdb
+            PHP_VERSION: ${{ matrix.php }}
+            EZ_COMPOSER_LOCK: ${{ matrix.ez_composer_lock }}
+            EZ_BUNDLES: ${{ matrix.ez_bundles }}
+            EZ_PACKAGES: ${{ matrix.ez_packages }}
+        strategy:
+            fail-fast: false
+            matrix:
+                # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners for available os versions
+                # @todo add some tests running on 'windows-latest'
+                include:
+                    - php: '5.6'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      #ez_packages: 'ezsystems/ezpublish-community:~2014.11.1 ezsystems/ez-matrix-bundle:^0.1 netgen/tagsbundle:^2.0 ezsystems/behatbundle:^5.4'
+                      ez_composer_lock: Tests/composer/composer-cp_2104.11.1.lock
+                      operating-system: 'ubuntu-18.04'
+                    - php: '7.0'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      ez_packages: 'ezsystems/ezplatform:~1.7.9 kaliop/ezmigrationbundle:~6.0.0'
+                      ez_composer_lock: ''
+                      operating-system: 'ubuntu-18.04'
+                    - php: '7.1'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      ez_packages: 'ezsystems/ezplatform:~1.13.5 kaliop/ezmigrationbundle:~6.1.0'
+                      ez_composer_lock: ''
+                      operating-system: 'ubuntu-18.04'
+                    - php: '7.2'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      ez_packages: 'ezsystems/ezplatform:~2.3.2 kaliop/ezmigrationbundle:^6.1'
+                      ez_composer_lock: ''
+                      operating-system: 'ubuntu-18.04'
+                    - php: '7.3'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      ez_packages: 'ezsystems/ezplatform:~2.4.2 kaliop/ezmigrationbundle:^6.1'
+                      ez_composer_lock: ''
+                      operating-system: 'ubuntu-18.04'
+                    - php: '7.4'
+                      ez_bundles: 'Kaliop\eZWorkflowEngineBundleEzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
+                      ez_packages: 'ezsystems/ezplatform:^2.5.15 kaliop/ezmigrationbundle:^6.1'
+                      ez_composer_lock: ''
+                      operating-system: 'ubuntu-18.04'
+#                    - php: "8.0"
+#                      ez_bundles: ''
+#                      ez_packages: ''
+#                      ez_composer_lock: ''
+#                      operating-system: 'ubuntu-20.04'
+#                    - php: "8.1"
+#                      ez_bundles: ''
+#                      ez_packages: ''
+#                      ez_composer_lock: ''
+#                      operating-system: 'ubuntu-20.04'
+        steps:
+            -
+                uses: actions/checkout@v2
+            # Although this action is useful, we prefer to use the same script to set up php that we use for the
+            # docker image used for local testing. This allows us to make sure that script is always in good shape
+            #-
+            #    uses: shivammathur/setup-php@v2
+            #    with:
+            #        php-version: ${{ matrix.php }}
+            #        extensions: curl, dom, mbstring, xsl
+            #        ini-values: 'cgi.fix_pathinfo=1, always_populate_raw_post_data=-1'
+            #        #tools: phpunit/phpunit:a_version_compatible_with_php_5.3-5.5
+            #        # NB: this disables xdebug completely
+            #        coverage: none
+            -
+                run: |
+                    git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
+                    # just in case...
+                    chmod 755 ./teststack/bin/*.sh  ./teststack/bin/setup/*.sh
+            # Avoid downloading composer deps on every workflow. Is this useful/working for us?
+            #-
+            #    uses: actions/cache@v2
+            #    with:
+            #        path: /tmp/composer-cache
+            #        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+            # This sets up php and starts mysql
+            -
+                run: './teststack/bin/setup.sh'
+            -
+                if: ${{ matrix.php == '7.4' }}
+                run: |
+                    ./teststack/bin/runtests.sh -c coverage.clover
+                    #if [ -f coverage.clover ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+                    if [ -f coverage.clover ]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -t ${CODECOV_TOKEN} -f coverage.clover; fi
+            -
+                if: ${{ matrix.php != '7.4' }}
+                run: './teststack/bin/runtests.sh'
+            -
+                if: ${{ failure() }}
+                run: |
+                    #env
+                    #php -i
+                    #ps auxwww
+                    #dpkg --list | grep php
+                    #ps auxwww | grep fpm
+                    #pwd
+                    #sudo env
+                    #systemctl status apache2.service
+                    #ls -la /etc/apache2/mods-enabled
+                    #ls -la /etc/apache2/conf-enabled
+                    #ls -la /etc/apache2/mods-available
+                    #ls -la /etc/apache2/conf-available
+                    #ls -la /etc/apache2/sites-available/
+                    #sudo cat /etc/apache2/envvars
+                    #sudo cat /etc/apache2/sites-available/000-default.conf
+                    #ls -ltr /var/log
+                    #ls -ltr /var/log/apache2
+                    #sudo cat /var/log/privoxy/*
+                    #sudo cat /var/log/apache2/error.log
+                    #sudo cat /var/log/apache2/other_vhosts_access.log
+                    sudo cat /var/log/php*.log
