@@ -9,7 +9,8 @@
         "kaliop/ezmigrationbundle": "^5.13 || ^6.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.0 || ^8.5.14"
+        "phpunit/phpunit": "^5.0 || ^8.5.14",
+        "roave/security-advisories": "dev-disablechecks as dev-master"
     },
     "autoload": {
         "psr-4": { "Kaliop\\eZWorkflowEngineBundle\\": "" }

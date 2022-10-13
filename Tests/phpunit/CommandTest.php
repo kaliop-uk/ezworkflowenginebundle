@@ -4,7 +4,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use eZ\Bundle\EzPublishCoreBundle\Console\Application;
 use Symfony\Component\Console\Output\StreamOutput;
 
-abstract class CommandTest extends WebTestCase
+abstract class BaseCommandTest extends WebTestCase
 {
     protected $dslDir;
     protected $targetBundle = 'EzPublishCoreBundle'; // it is always present :-)
@@ -27,7 +27,7 @@ abstract class CommandTest extends WebTestCase
         $this->dslDir = __DIR__ . '/../dsl';
     }
 
-    protected function setUp()
+    protected function doSetUp()
     {
         $this->container = $this->getContainer();
 
@@ -60,7 +60,7 @@ abstract class CommandTest extends WebTestCase
         return $out;
     }
 
-    protected function tearDown()
+    protected function doTearDown()
     {
         foreach ($this->leftovers as $file) {
             unlink($file);
@@ -72,6 +72,10 @@ abstract class CommandTest extends WebTestCase
             fclose($fp);
             $this->output = null;
         }
+
+        // do the same as the parent method does
+        static::ensureKernelShutdown();
+        static::$kernel = null;
     }
 
     protected function getContainer()
@@ -97,5 +101,36 @@ abstract class CommandTest extends WebTestCase
         }
         static::$kernel->boot();
         return static::$kernel->getContainer();
+    }
+}
+
+// Auto-adapt to PHPUnit 8 that added a `void` return-type to the setUp/tearDown methods
+/// @todo check: can we leave this to the parent class from Symfony?
+if (method_exists(\ReflectionMethod::class, 'hasReturnType') && (new \ReflectionMethod(TestCase::class, 'tearDown'))->hasReturnType()) {
+    // eval is required for php 5.6 compatibility
+    eval('abstract class CommandTest extends CommandTestBase
+    {
+        protected function setUp(): void
+        {
+            $this->doSetUp();
+        }
+
+        protected function tearDown(): void
+        {
+            $this->doTearDown();
+        }
+    }');
+}else {
+    abstract class CommandTest extends CommandTestBase
+    {
+        protected function setUp()
+        {
+            $this->doSetUp();
+        }
+
+        protected function tearDown()
+        {
+            $this->doTearDown();
+        }
     }
 }
