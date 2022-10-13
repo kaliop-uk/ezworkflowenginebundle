@@ -1,7 +1,8 @@
 <?php
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use eZ\Bundle\EzPublishCoreBundle\Console\Application;
+use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Output\StreamOutput;
 
 abstract class BaseCommandTest extends WebTestCase
