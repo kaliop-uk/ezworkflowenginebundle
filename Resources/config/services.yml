@@ -55,6 +55,7 @@ services:
         tags:
             - { name: ez_migration_bundle.context_provider, label: workflow_service }
             - { name: ez_migration_bundle.reference_resolver.customreference }
+        lazy: true
 
     ### loaders
 
