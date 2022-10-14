@@ -1,5 +1,6 @@
 /.idea
 /.euts*
+/composer
 /composer.lock
 /composer.phar
 /composer_*.json

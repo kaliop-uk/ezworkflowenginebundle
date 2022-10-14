@@ -27,7 +27,7 @@ class CliTest extends CommandExecutingTest
         return null;
     }
 
-    protected function checkGeneratedFile($filePath,)
+    protected function checkGeneratedFile($filePath)
     {
         // Check that the generated file can be parsed as valid Workflow Definition
         $output = $this->runCommand('kaliop:workflows:debug');
