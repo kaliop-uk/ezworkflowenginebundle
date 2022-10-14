@@ -1,7 +1,7 @@
 Version 2.0 (unreleased)
 ========================
 
-* Make compatible with eZMigrationBundle 5.13 and later
+* Make compatible with eZMigrationBundle 5.13 and later (this means we have to drop compatibility with earlier versions)
 
 * Move from `master` to `main` branch
 

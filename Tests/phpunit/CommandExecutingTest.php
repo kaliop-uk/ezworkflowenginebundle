@@ -2,17 +2,17 @@
 
 use eZ\Bundle\EzPublishCoreBundle\Console\Application;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Output\StreamOutput;
 
-abstract class CommandTestBase extends WebTestCase
+abstract class CommandTestBase extends KernelTestCase
 {
     protected $dslDir;
     protected $targetBundle = 'EzPublishCoreBundle'; // it is always present :-)
     protected $leftovers = array();
 
     /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
-    protected $container;
+    private $_container;
     /** @var \eZ\Bundle\EzPublishCoreBundle\Console\Application $app */
     protected $app;
     /** @var StreamOutput $output */
@@ -30,7 +30,7 @@ abstract class CommandTestBase extends WebTestCase
 
     protected function doSetUp()
     {
-        $this->container = $this->getContainer();
+        $this->_container = $this->bootContainer();
 
         $this->app = new Application(static::$kernel);
         $this->app->setAutoExit(false);
@@ -74,16 +74,16 @@ abstract class CommandTestBase extends WebTestCase
             $this->output = null;
         }
 
-        // do the same as the parent method does
+        // shuts down the kernel etc...
+        // Since we added the BC trick with doSetup/doTeardown, this would be a loop. So we do all here
         static::ensureKernelShutdown();
         static::$kernel = null;
     }
 
-    protected function getContainer()
+    protected function bootContainer()
     {
-        if (null !== static::$kernel) {
-            static::$kernel->shutdown();
-        }
+        static::ensureKernelShutdown();
+
         if (!isset($_SERVER['SYMFONY_ENV'])) {
             throw new \Exception("Please define the environment variable SYMFONY_ENV to specify the environment to use for the tests");
         }
@@ -96,12 +96,46 @@ abstract class CommandTestBase extends WebTestCase
             $options['debug'] = $_SERVER['SYMFONY_DEBUG'];
         }
         try {
-            static::$kernel = static::createKernel($options);
+            static::bootKernel($options);
         } catch (\RuntimeException $e) {
             throw new \RuntimeException($e->getMessage() . " Did you forget to define the environment variable KERNEL_DIR?", $e->getCode(), $e->getPrevious());
         }
-        static::$kernel->boot();
-        return static::$kernel->getContainer();
+
+        // In Sf4 we do have the container available, in Sf3 we do not
+        return isset(static::$container) ? static::$container : static::$kernel->getContainer();
+    }
+
+    protected function getContainer()
+    {
+        return $this->_container;
+    }
+
+    /**
+     * @param string $commandName
+     * @param array $params
+     * @param bool $checkExitCode
+     * @return string|null
+     * @throws Exception
+     */
+    protected function runCommand($commandName, array $params = array(), $checkExitCode = true)
+    {
+        $exitCode = $this->app->run($this->buildInput($commandName, $params), $this->output);
+        $output = $this->fetchOutput();
+        if ($checkExitCode) {
+            $this->assertSame(0, $exitCode, 'CLI Command failed. Output: ' . $output);
+        }
+        return $output;
+    }
+
+    /**
+     * @param $commandName
+     * @param array $params
+     * @return ArrayInput
+     */
+    protected function buildInput($commandName, array $params = array())
+    {
+        $params = array_merge(['command' => $commandName], $params);
+        return new ArrayInput($params);
     }
 }
 
@@ -109,7 +143,7 @@ abstract class CommandTestBase extends WebTestCase
 /// @todo check: can we leave this to the parent class from Symfony?
 if (method_exists(\ReflectionMethod::class, 'hasReturnType') && (new \ReflectionMethod(TestCase::class, 'tearDown'))->hasReturnType()) {
     // eval is required for php 5.6 compatibility
-    eval('class CommandTest extends CommandTestBase
+    eval('abstract class CommandExecutingTest extends CommandTestBase
     {
         protected function setUp(): void
         {
@@ -122,7 +156,7 @@ if (method_exists(\ReflectionMethod::class, 'hasReturnType') && (new \Reflection
         }
     }');
 } else {
-    class CommandTest extends CommandTestBase
+    abstract class CommandExecutingTest extends CommandTestBase
     {
         protected function setUp()
         {
