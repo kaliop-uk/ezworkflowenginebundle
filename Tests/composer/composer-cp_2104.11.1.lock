@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c4daa5f7f7773eda49cb1b6f622e2cba",
+    "content-hash": "f9c52982cd1c10f65853b77645bdac05",
     "packages": [],
     "packages-dev": [
         {
@@ -791,6 +791,44 @@
                 "source": "https://github.com/egulias/ListenersDebugCommandBundle/tree/1.9"
             },
             "time": "2015-02-22T15:40:31+00:00"
+        },
+        {
+            "name": "ezsystems/behatbundle",
+            "version": "5.4.2",
+            "target-dir": "EzSystems/BehatBundle",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gggeek/BehatBundle",
+                "reference": "e473aceacf773a682075665e85f902ac68f14552"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gggeek/BehatBundle/zipball/e473aceacf773a682075665e85f902ac68f14552",
+                "reference": "e473aceacf773a682075665e85f902ac68f14552",
+                "shasum": ""
+            },
+            "require": {
+                "ezsystems/ezpublish-kernel": "~5.4@rc||>=2014.11",
+                "php": ">=5.4.4",
+                "phpunit/phpunit": "~4.0 || ~5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "EzSystems\\BehatBundle": ""
+                }
+            },
+            "license": [
+                "GPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "eZ Publish dev-team & eZ Community",
+                    "homepage": "https://github.com/ezsystems/BehatBundle/graphs/contributors"
+                }
+            ],
+            "description": "Behat bundle for help testing eZ Bundles and projects",
+            "time": "2020-03-30T19:19:04+00:00"
         },
         {
             "name": "ezsystems/comments-bundle",

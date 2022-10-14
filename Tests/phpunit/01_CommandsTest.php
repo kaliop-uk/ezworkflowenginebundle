@@ -2,7 +2,7 @@
 
 include_once(__DIR__.'/CommandExecutingTest.php');
 
-class CliTest extends CommandExecutingTest
+class CommandsTest extends CommandExecutingTest
 {
     /**
      * @param string $command
