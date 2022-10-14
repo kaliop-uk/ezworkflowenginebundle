@@ -3,6 +3,7 @@
 use eZ\Bundle\EzPublishCoreBundle\Console\Application;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
 abstract class CommandTestBase extends KernelTestCase
