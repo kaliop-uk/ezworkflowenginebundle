@@ -163,5 +163,6 @@ It is however possible to do so, with just a little bit of configuration work:
 [![Latest Stable Version](https://poser.pugx.org/kaliop/ezworkflowenginebundle/v/stable)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 [![Total Downloads](https://poser.pugx.org/kaliop/ezworkflowenginebundle/downloads)](https://packagist.org/packages/kaliop/ezworkflowenginebundle)
 
-[![Build Status](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle.svg?branch=main)](https://travis-ci.org/kaliop-uk/ezworkflowenginebundle)
+[![Build Status](https://github.com/kaliop-uk/ezworkflowenginebundle/actions/workflows/ci.yml/badge.svg)](https://github.com/kaliop-uk/ezmigrationbundle/actions/workflows/ci.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/kaliop-uk/ezworkflowenginebundle/?branch=main)
+[![Code Coverage](https://codecov.io/gh/kaliop-uk/ezworkflowenginebundle/branch/main/graph/badge.svg)](https://codecov.io/gh/kaliop-uk/ezworkflowenginebundle)
