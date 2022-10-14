@@ -1,5 +1,9 @@
 /.idea
-/vendor
+/.euts*
 /composer.lock
 /composer.phar
+/composer_*.json
+/composer_*.lock
 /phpunit.xml
+/vendor
+/vendor_*
