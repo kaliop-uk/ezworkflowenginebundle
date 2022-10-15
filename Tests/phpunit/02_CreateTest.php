@@ -6,11 +6,11 @@ class CreateTest extends CommandExecutingTest
 {
     public function testWorkflowCreation()
     {
-        $output = $this->runCommand('kaliop:workflows:generate', array('bundle' => self::$targetBundle));
+        $output = $this->runCommand('kaliop:workflows:generate', array('bundle' => $this->targetBundle));
         $generatedFile = $this->saveGeneratedFile($output);
         $this->assertNotNull($generatedFile, "Failed creating a workflow");
 
-        $output = $this->runCommand('kaliop:workflows:generate', array('bundle' => self::$targetBundle, '--format' => 'json'));
+        $output = $this->runCommand('kaliop:workflows:generate', array('bundle' => $this->targetBundle, '--format' => 'json'));
         $generatedFile = $this->saveGeneratedFile($output);
         $this->assertNotNull($generatedFile, "Failed creating a workflow in json format");
 
