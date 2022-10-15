@@ -50,7 +50,7 @@ jobs:
                       operating-system: 'ubuntu-22.04'
                     - php: '7.4'
                       ez_bundles: 'Kaliop\eZWorkflowEngineBundle\EzWorkflowEngineBundle Kaliop\eZMigrationBundle\EzMigrationBundle'
-                      ez_packages: 'ezsystems/ezplatform:^2.5.15 kaliop/ezmigrationbundle:^6.1 ezsystems/behatbundle:^7.0 sensio/generator-bundle'
+                      ez_packages: 'ezsystems/ezplatform:^2.5.15 kaliop/ezmigrationbundle:^6.1 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle'
                       ez_composer_lock: ''
                       operating-system: 'ubuntu-22.04'
 #                    - php: "8.0"
