@@ -3,6 +3,8 @@ Version 2.0
 
 * Make compatible with eZMigrationBundle 5.13 and later (this means we have to drop compatibility with earlier versions)
 
+* Fix command `kaliop:workflows:workflow --info` to be compatible with php 7.4
+
 * Move from `master` to `main` branch
 
 * Move from Travis to GitHub Actions for CI testing. Add some proper tests!

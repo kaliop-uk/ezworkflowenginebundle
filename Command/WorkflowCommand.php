@@ -110,7 +110,7 @@ EOT
                     try {
                         $workflowDefinitionCollection = $workflowService->getWorkflowsDefinitions(array($workflow->path));
                         if (count($workflowDefinitionCollection)) {
-                            $workflowDefinition = reset($workflowDefinitionCollection);
+                            $workflowDefinition = $workflowDefinitionCollection->reset();
                             $workflowDefinition = $workflowService->parseWorkflowDefinition($workflowDefinition);
 
                             if ($workflowDefinition->status != MigrationDefinition::STATUS_PARSED) {
