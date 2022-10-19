@@ -1,0 +1,11 @@
+# Workflow-triggering migration
+
+-
+    type: content
+    mode: create
+    content_type: kwe_test_03_ct
+    parent_location: 2
+    remote_id: kwe_test_03_01_rid
+    attributes:
+        title: test content for Kaliop Workflow Engine
+        body: this will be changed via a workflow

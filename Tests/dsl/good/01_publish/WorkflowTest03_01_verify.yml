@@ -1,0 +1,17 @@
+# Workflow verification migration
+
+-
+    type: content
+    mode: load
+    match:
+        content_remote_id: kwe_test_03_01_rid
+    references:
+        kwe_test_03_01_body_field: attributes.body
+
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kwe_test_03_01_body_field
+    test:
+        equals: this has been changed via a workflow

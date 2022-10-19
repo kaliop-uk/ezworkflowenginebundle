@@ -1,0 +1,13 @@
+# Post-workflow migration
+
+-
+    type: content
+    mode: delete
+    match:
+        contenttype_identifier: kwe_test_03_ct
+
+-
+    type: content_type
+    mode: delete
+    match:
+        identifier: kwe_test_03_ct

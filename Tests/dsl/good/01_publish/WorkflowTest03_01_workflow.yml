@@ -1,0 +1,27 @@
+-
+    type: workflow
+    signal: ContentService\PublishVersionSignal
+    avoid_recursion: true
+
+-
+    type: content
+    mode: load
+    match:
+        content_id: workflow:signal:content_id
+    references:
+        -
+            identifier: content_type_ref
+            attribute: content_type_identifier
+-
+    type: workflow
+    mode: cancel
+    unless:
+        "reference:content_type_ref":
+            eq: "kwe_test_03_ct"
+-
+    type: content
+    mode: update
+    match:
+        content_id: workflow:signal:content_id
+    attributes:
+        body: this has been changed via a workflow

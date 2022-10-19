@@ -1,0 +1,25 @@
+# Pre-workflows migration
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    name: Kaliop Workflow Engine Bundle Test Class 1
+    identifier: kwe_test_03_ct
+    name_pattern: <title>
+    default_always_available: true
+    default_sort_field: priority
+    default_sort_order: asc
+    attributes:
+        -
+            type: ezstring
+            name: Title
+            identifier: title
+            required: true
+            searchable: true
+        -
+            type: ezstring
+            name: Body
+            identifier: body
+            required: false
+            searchable: true
