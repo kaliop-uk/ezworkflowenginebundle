@@ -1,5 +1,5 @@
-Version 2.0 (unreleased)
-========================
+Version 2.0
+===========
 
 * Make compatible with eZMigrationBundle 5.13 and later (this means we have to drop compatibility with earlier versions)
 
