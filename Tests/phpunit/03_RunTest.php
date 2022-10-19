@@ -53,6 +53,9 @@ class RunTest extends CommandExecutingTest
         // check that the workflow was executed
         $out = $this->runCommand('kaliop:workflows:status');
         $this->assertRegExp('?\| .+' . $this->prefix.'_'.$num.'_workflow.yml' . ' +\|.+\| executed +\|?', $out);
+        preg_match('?\| ([^|]+' . $this->prefix.'_'.$num.'_workflow.yml)' . ' +\|?', $out, $matches);
+        $out = $this->runCommand('kaliop:workflows:workflow', array('--info' => true, 'workflow' => $matches[1]));
+        $this->assertRegExp('?Status: executed?', $out);
     }
 
     public function provideFolderList()

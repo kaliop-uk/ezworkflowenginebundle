@@ -81,6 +81,7 @@ jobs:
             #        coverage: none
             -
                 run: |
+                    # @todo we should check out a specific tag/branch for stability, or at last the latest tag...
                     git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
                     # just in case...
                     chmod 755 ./teststack/bin/*.sh  ./teststack/bin/setup/*.sh
@@ -90,7 +91,7 @@ jobs:
             #    with:
             #        path: /tmp/composer-cache
             #        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-            # This sets up php and starts mysql
+            # This sets up php and configures plus starts mysql
             -
                 run: './teststack/bin/setup.sh'
                 env:
@@ -111,7 +112,6 @@ jobs:
                     #php -i
                     #ps auxwww
                     #dpkg --list | grep php
-                    #ps auxwww | grep fpm
                     #pwd
                     #sudo env
                     #ls -ltr /var/log

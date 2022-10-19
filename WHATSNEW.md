@@ -5,7 +5,7 @@ Version 2.0 (unreleased)
 
 * Move from `master` to `main` branch
 
-* Move from Travis to GitHub Actions for CI testing
+* Move from Travis to GitHub Actions for CI testing. Add some proper tests!
 
 * Bump the version of phpunit used to run the tests from 4.x/5.x to 5.x/8.x
 
