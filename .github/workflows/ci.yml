@@ -17,6 +17,7 @@ jobs:
             EZ_COMPOSER_LOCK: ${{ matrix.ez_composer_lock }}
             EZ_BUNDLES: ${{ matrix.ez_bundles }}
             EZ_PACKAGES: ${{ matrix.ez_packages }}
+            EZ_LEGACY_EXTENSIONS: ezworkflowenginebridge
         strategy:
             fail-fast: false
             matrix:
