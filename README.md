@@ -189,12 +189,12 @@ Steps to set up a dedicated test environment and run the tests in it:
     git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
     # if you have a github auth token, it is a good idea to copy it now to teststack/docker/data/.composer/auth.json
 
-    # this config sets up a test environment with eZPlatform 2.5 running on php 7.4 / debian bullseye
+    # this config sets up a test environment with eZPlatform 2.5 running on php 7.4 / ubuntu jammy
     export TESTSTACK_CONFIG_FILE=Tests/environment/.euts.2.5.env
 
     ./teststack/teststack build
     ./teststack/teststack runtests
-    ./teststack/teststack.sh stop
+    ./teststack/teststack stop
 
 You can also run a single test case:
 
@@ -215,7 +215,7 @@ Or command-line shell prompt to the Docker container where tests are run:
 
     ./teststack/teststack shell
 
-The tests in the Docker container run using the version of debian/php/eZPlatform kernel specified in the file
+The tests in the Docker container run using the version of debian/php/mysql/eZPlatform kernel specified in the file
 `Tests/environment/.euts.2.5.env`, as specified in env var `TESTSTACK_CONFIG_FILE`.
 If no value is set for that environment variable, a file named `.euts.env` is looked for.
 If no such file is present, some defaults are used, you can check the documentation in ./teststack/README.md to find out
