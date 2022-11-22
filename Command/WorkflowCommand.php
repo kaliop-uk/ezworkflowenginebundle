@@ -2,12 +2,12 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command to manipulate existing workflows.
@@ -28,16 +28,21 @@ class WorkflowCommand extends AbstractCommand
             ->setDescription('Manually delete workflows from the database table.')
             ->addOption('delete', null, InputOption::VALUE_NONE, "Delete the specified workflow.")
             ->addOption('info', null, InputOption::VALUE_NONE, "Get info about the specified workflow.")
+            ->addOption('fail', null, InputOption::VALUE_NONE, "Mark the specified migration as failed.")
             ->addOption('no-interaction', 'n', InputOption::VALUE_NONE, "Do not ask any interactive question.")
             ->addArgument('workflow', InputArgument::REQUIRED, 'The workflow to view or delete (plain workflow name).', null)
             ->setHelp(<<<EOT
-The <info>kaliop:workflows:workflow</info> command allows you to manually delete dead workflows from the database table:
+The <info>kaliop:workflows:workflow</info> command allows you to manually manage workflows in the database table.
 
-    <info>./ezpublish/console kaliop:workflows:workflow --delete workflow_name</info>
+To see detailed information about a workflow:
 
-As well as viewing details:
+    <info>php bin/console kaliop:workflows:workflow --info workflow_name</info>
 
-    <info>./ezpublish/console kaliop:workflows:workflow --info workflow_name</info>
+To remove a workflow from the workflow table, or mark it as failed:
+
+    <info>php bin/console kaliop:workflows:workflow --delete workflow_name</info>
+
+    <info>php bin/console kaliop:workflows:workflow --fail workflow_name</info>
 EOT
             );
     }
@@ -51,8 +56,8 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (!$input->getOption('delete') && !$input->getOption('info')) {
-            throw new \InvalidArgumentException('You must specify whether you want to --delete or --info the specified workflow.');
+        if (!$input->getOption('delete') && !$input->getOption('info') && !$input->getOption('fail')) {
+            throw new \InvalidArgumentException('You must specify whether you want to --delete, --fail or --info the specified workflow.');
         }
 
         $workflowService = $this->getWorkflowService();
@@ -137,7 +142,7 @@ EOT
             }
 
             $output->writeln('');
-            return;
+            return 0;
         }
 
         // ask user for confirmation to make changes
@@ -154,15 +159,23 @@ EOT
             }
         }
 
-        if ($input->getOption('delete')) {
+        if ($input->getOption('delete') || $input->getOption('fail')) {
             $workflow = $workflowService->getWorkflow($workflowNameOrPath);
             if ($workflow == null) {
                 throw new \InvalidArgumentException(sprintf('The workflow "%s" does not exist in the database table.', $workflowNameOrPath));
             }
 
-            $workflowService->deleteWorkflow($workflow);
+            if ($input->getOption('delete')) {
+                $workflowService->deleteWorkflow($workflow);
+            } else {
+                $errorMessage = 'Manually failed on ' . date("Y-m-d H:i:s");
+                if ($workflow->executionError != '') {
+                    $errorMessage .= ". Previous notes: " . $workflow->executionError;
+                }
+                $workflowService->failWorkflow($workflow, $errorMessage);
+            }
 
-            return;
+            return 0;
         }
     }
 }
