@@ -2,11 +2,11 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Helper\Table;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command to display the defined workflow definitions.
@@ -17,8 +17,8 @@ class DebugCommand extends AbstractCommand
     {
         $this->setName('kaliop:workflows:debug')
             ->setDescription('List the configured workflow definitions')
-            ->addOption('path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "The directory or file to load the workflow definitions from"
-            )
+            ->addOption('path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "The directory or file to load the workflow definitions from")
+            ->addOption('show-path', null, InputOption::VALUE_NONE, "Print definition path instead of notes")
         ;
     }
 
@@ -26,11 +26,13 @@ class DebugCommand extends AbstractCommand
     {
         $workflowService = $this->getWorkflowService();
 
+        $displayPath = $input->getOption('show-path');
+
         $workflowDefinitions = $workflowService->getWorkflowsDefinitions($input->getOption('path'));
 
         if (!count($workflowDefinitions)) {
             $output->writeln('<info>No workflow definitions found</info>');
-            return;
+            return 0;
         }
 
         $i = 1;
@@ -49,7 +51,7 @@ class DebugCommand extends AbstractCommand
                 //$workflowDefinition->path,
                 ($workflowDefinition->runAs === false) ? '-' : $workflowDefinition->runAs,
                 $workflowDefinition->useTransaction ? 'Y' : 'N',
-                $workflowDefinition->parsingError
+                $displayPath ? $workflowDefinition->path : $workflowDefinition->parsingError
             );
 
         }
@@ -59,5 +61,7 @@ class DebugCommand extends AbstractCommand
             ->setHeaders(array('#', 'Workflow definition', 'Signal', 'Switch user', 'Use transaction', /*'Path',*/ 'Notes'))
             ->setRows($data);
         $table->render();
+
+        return 0;
     }
 }
