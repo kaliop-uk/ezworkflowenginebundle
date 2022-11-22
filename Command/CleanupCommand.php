@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
  * Command to clean up workflows.
@@ -69,5 +68,7 @@ class CleanupCommand extends AbstractCommand
         }
 
         $output->writeln($action . count($toRemove) . " workflows out of $total $label");
+
+        return 0;
     }
 }

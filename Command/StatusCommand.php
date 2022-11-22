@@ -2,11 +2,11 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Helper\Table;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command to display the defined workflows.
@@ -31,7 +31,7 @@ class StatusCommand extends AbstractCommand
 
         if (!count($workflows)) {
             $output->writeln('<info>No workflows found</info>');
-            return;
+            return 0;
         }
 
         $summary = array(
@@ -114,5 +114,7 @@ class StatusCommand extends AbstractCommand
             ->setHeaders($headers)
             ->setRows($data);
         $table->render();
+
+        return 0;
     }
 }

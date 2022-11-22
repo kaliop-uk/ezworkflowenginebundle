@@ -2,15 +2,15 @@
 
 namespace Kaliop\eZWorkflowEngineBundle\Core;
 
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\Resource\FileResource;
-use Psr\Log\LoggerInterface;
-use Kaliop\eZMigrationBundle\Core\MigrationService;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
 use Kaliop\eZMigrationBundle\API\DefinitionParserInterface;
 use Kaliop\eZMigrationBundle\API\ExecutorInterface;
+use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZWorkflowEngineBundle\API\Value\WorkflowDefinition;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Resource\FileResource;
 
 /**
  * @todo add phpdoc to help IDEs
@@ -35,8 +35,6 @@ class WorkflowServiceFacade
     }
 
     /**
-     * q: should this method be moved to WorkflowService instead of the Slot ?
-     *
      * @param string $signalName must use the same format as we extract from signal class names
      * @param array $signalParameters must follow what is found in eZ5 signals
      * @throws \Exception
@@ -85,8 +83,13 @@ class WorkflowServiceFacade
 
                     if ($this->logger) $this->logger->debug("Executing workflow '{$workflowDefinition->name}' with parameters: " . preg_replace("/\n+/s", ' ', preg_replace('/^(Array| +|\(|\))/m', '', print_r($workflowParameters, true))));
 
-                    /// @todo allow setting of default lang ?
-                    $this->innerService->executeMigration($wfd, $workflowDefinition->useTransaction, null, $workflowDefinition->runAs, false, null, $workflowParameters);
+                    /// @todo allow setting of default lang, user and userGroup content types ?
+                    $this->innerService->executeMigration($wfd, array(
+                        'useTransaction' => $workflowDefinition->useTransaction,
+                        'adminUserLogin' => $workflowDefinition->runAs,
+                        'workflow' => $workflowParameters,
+                    ));
+
                     self::$workflowExecuting -= 1;
                 } catch (\Exception $e) {
                     self::$workflowExecuting -= 1;

@@ -1,3 +1,15 @@
+Version 2.1
+===========
+
+* New: command `kaliop:workflows:workflow` learned action `--fail`
+
+* New: command `kaliop:workflows:debug` learned option `--show-path`
+
+* BC change (for developers extending the bundle): `WorflowServiceInner` methods `executeMigration` and `executeMigrationInner`
+  should now be called using a different signature. They do still work with the previous signature, but that usage is
+  considered deprecated
+
+
 Version 2.0
 ===========
 

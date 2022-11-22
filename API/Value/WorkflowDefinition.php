@@ -30,7 +30,7 @@ class WorkflowDefinition extends MigrationDefinition
      * @param string $path
      * @param string $rawDefinition
      * @param int $status
-     * @param MigrationStep[]|MigrationStepsCollection $steps
+     * @param \Kaliop\eZMigrationBundle\API\Value\MigrationStep[]|\Kaliop\eZMigrationBundle\API\Collection\MigrationStepsCollection $steps
      * @param string $parsingError
      * @param string $signalName
      * @param string|int|false|null $runAs if false will use the current user; if null will use hardcoded 14; string for login or user id

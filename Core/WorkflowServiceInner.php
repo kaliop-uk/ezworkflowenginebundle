@@ -68,16 +68,20 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
      * Reimplemented to add more parameters to be stored in the context
      *
      * @param MigrationDefinition $migrationDefinition
-     * @param bool $useTransaction when set to false, no repo transaction will be used to wrap the migration
-     * @param string $defaultLanguageCode
-     * @param string|int|false|null $adminLogin when false, current user is used; when null, hardcoded admin account
-     * @param $workflowParameters
+     * @param array $migrationContext Supported array keys are: adminUserLogin, defaultLanguageCode, userContentType,
+     *                                userGroupContentType useTransaction, workflow
+     *                                was: bool $useTransaction when set to false, no repo transaction will be used to wrap the migration
+     * @param string $defaultLanguageCode Deprecated - use $migrationContext['defaultLanguageCode']
+     * @param string|int|false|null $adminLogin Deprecated - use $migrationContext['adminLogin']; when false, current user is used; when null, hardcoded admin account
+     * @param bool $force Deprecated - use $migrationContext['forceExecution']; when true, execute a migration if it was already in status DONE or SKIPPED (would throw by default)
+     * @param bool|null $forceSigchildEnabled Deprecated
+     * @param null|array $workflowParameters Deprecated - use $migrationContext['workflow']
      * @throws \Exception
      *
      * @todo treating a null and false $adminLogin values differently is prone to hard-to-track errors.
      *       Shall we use instead -1 to indicate the desire to not-login-as-admin-user-at-all ?
      */
-    public function executeMigration(MigrationDefinition $migrationDefinition, $useTransaction = true,
+    public function executeMigration(MigrationDefinition $migrationDefinition, $migrationContext = true,
         $defaultLanguageCode = null, $adminLogin = null, $force = false, $forceSigchildEnabled = null, $workflowParameters = null)
     {
         if ($migrationDefinition->status == MigrationDefinition::STATUS_TO_PARSE) {
@@ -89,8 +93,21 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
             throw new \Exception("Can not execute migration '{$migrationDefinition->name}': {$migrationDefinition->parsingError}");
         }
 
-        /// @todo add support for setting in $migrationContext a userContentType ?
-        $migrationContext = $this->migrationContextFromParameters($defaultLanguageCode, $adminLogin, $forceSigchildEnabled, $workflowParameters);
+        // BC: handling of legacy method call signature
+        if (!is_array($migrationContext)) {
+            $useTransaction = $migrationContext;
+            $migrationContext = $this->migrationContextFromParameters($defaultLanguageCode, $adminLogin, $forceSigchildEnabled, $workflowParameters);
+        } else {
+            if ($defaultLanguageCode !== null || $adminLogin !== null || $force !== false || $forceSigchildEnabled !== null
+                || $workflowParameters !== null
+            ) {
+                throw new \Exception("Invalid call to executeMigration: argument types mismatch");
+            }
+            $useTransaction = array_key_exists('useTransaction', $migrationContext) ? $migrationContext['useTransaction'] : true;
+            $migrationContext['workflow'] = $this->workflowMigrationContextFromParameters(
+                array_key_exists('workflow', $migrationContext) ? $migrationContext['workflow'] : null
+            );
+        }
 
         // set migration as begun - has to be in own db transaction
         $migration = $this->storageHandler->startMigration($migrationDefinition, $force);
@@ -104,8 +121,8 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
      * @param MigrationDefinition $migrationDefinition
      * @param array $migrationContext
      * @param int $stepOffset
-     * @param bool $useTransaction when set to false, no repo transaction will be used to wrap the migration
-     * @param string|int|false|null $adminLogin used only for committing db transaction if needed. If false or null, hardcoded admin is used
+     * @param bool $useTransaction Deprecated - replaced by $migrationContext['useTransaction']. When set to false, no repo transaction will be used to wrap the migration
+     * @param string|int|false|null $adminLogin Deprecated - $migrationContext['adminLogin']. Used only for committing db transaction if needed. If false or null, hardcoded admin is used
      * @throws \Exception
      */
     protected function executeMigrationInner(Migration $migration, MigrationDefinition $migrationDefinition,
@@ -130,27 +147,33 @@ class WorkflowServiceInner extends MigrationService implements PrefixBasedResolv
      * @param null $adminLogin
      * @param array $workflowParameters
      * @return array
+     * @deprecated kept for BC
      */
     protected function migrationContextFromParameters($defaultLanguageCode = null, $adminLogin = null, $forceSigchildEnabled = null, $workflowParameters = null)
     {
         $properties = parent::migrationContextFromParameters($defaultLanguageCode, $adminLogin, $forceSigchildEnabled);
 
+        $properties['workflow'] = $this->workflowMigrationContextFromParameters($workflowParameters);
+
+        return $properties;
+    }
+
+    protected function workflowMigrationContextFromParameters($workflowParameters = null)
+    {
         if (!is_array($workflowParameters)) {
             /// @todo log warning
             $workflowParameters = array();
         }
 
         $workflowParameters = array_merge(
+            $workflowParameters,
             array(
                 'original_user' => $this->repository->getCurrentUser()->login,
                 'start_time' => time()
-            ),
-            $workflowParameters
+            )
         );
 
-        $properties['workflow'] = $workflowParameters;
-
-        return $properties;
+        return $workflowParameters;
     }
 
     /**

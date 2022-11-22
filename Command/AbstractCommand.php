@@ -10,12 +10,12 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 abstract class AbstractCommand extends ContainerAwareCommand
 {
     /**
-     * @var \Kaliop\eZWorkflowEngineBundle\Core\WorkflowService
+     * @var \Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
      */
     private $workflowService;
 
     /**
-     * @return \Kaliop\eZWorkflowEngineBundle\Core\WorkflowService
+     * @return \Kaliop\eZWorkflowEngineBundle\Core\WorkflowServiceFacade
      */
     public function getWorkflowService()
     {

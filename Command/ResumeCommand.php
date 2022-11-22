@@ -4,9 +4,8 @@ namespace Kaliop\eZWorkflowEngineBundle\Command;
 
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command to resume suspended workflows.
@@ -72,7 +71,7 @@ EOT
 
         if (!count($suspendedWorkflows)) {
             $output->writeln('Nothing to do');
-            return;
+            return 0;
         }
 
         // ask user for confirmation to make changes
@@ -111,5 +110,7 @@ EOT
         if ($failed) {
             return 2;
         }
+
+        return 0;
     }
 }

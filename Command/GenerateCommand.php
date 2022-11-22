@@ -28,7 +28,7 @@ class GenerateCommand extends AbstractCommand
             ->setHelp(<<<EOT
 The <info>kaliop:workflows:generate</info> command generates a skeleton workflows definition file:
 
-    <info>php ezpublish/console kaliop:workflows:generate bundlename</info>
+    <info>php bin/console kaliop:workflows:generate bundlename</info>
 EOT
             );
     }
@@ -92,6 +92,8 @@ EOT
         if ($warning != '') {
             $output->writeln("<comment>$warning</comment>");
         }
+
+        return 0;
     }
 
     /**
